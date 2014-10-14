@@ -16,6 +16,7 @@ from travel.travel import TravelTimeCalculator
 from obspy.core.util import locations2degrees
 from obspy.fdsn import Client
 import numpy as np
+from neicio import GMTGrid
 
 SHAKEHOME = '/home/shake/ShakeMap'
 
