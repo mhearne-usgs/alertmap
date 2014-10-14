@@ -65,13 +65,13 @@ def getEventText(eventfile,lat,lon):
     eventdict['lat'] = lat
     eventdict['lon'] = lon
     eventdict['eventid'] = eq.getAttribute('id')
-    eventdict['mag'] = float(eq.getAttribute('id'))
+    eventdict['mag'] = float(eq.getAttribute('mag'))
     eventdict['year'] = int(eq.getAttribute('year'))
     eventdict['month'] = int(eq.getAttribute('month'))
     eventdict['day'] = int(eq.getAttribute('day'))
     eventdict['hour'] = int(eq.getAttribute('hour'))
     eventdict['minute'] = int(eq.getAttribute('minute'))
-    eventdict['second'] = int(round(float(eq.getAttribute('year'))))
+    eventdict['second'] = int(round(float(eq.getAttribute('second'))))
     eventdict['depth'] = float(eq.getAttribute('depth'))
     eventdict['locstr'] = eq.getAttribute('locstring')
     root.unlink()
