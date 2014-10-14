@@ -214,7 +214,7 @@ def main(args):
         
         timefile = os.path.join(datadir,'output','timegrid%03i.tif' % i)
         aff = Affine(mmigrid.geodict['xdim'],0.0,mmigrid.geodict['xmin'],0.0,mmigrid.geodict['xdim'],mmigrid.geodict['ymax'])
-        crs = {'init': u'epsg:4326'}
+        crs = {'no_defs': True, 'ellps': 'WGS84', 'datum': 'WGS84', 'proj': 'longlat'}
         timeio = rasterio.open(timefile,mode='w',driver='GTiff',
                                dtype=rasterio.float32,transform=aff,
                                crs=crs,count=1,height=m,width=n)
