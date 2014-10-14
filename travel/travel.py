@@ -16,8 +16,8 @@ class TravelTimeCalculator(object):
         self.fs = interpolate.interp1d(data[:,0],data[:,2])
 
     def getTravelTimes(self,distance):
-        ptime = fp(distance)
-        stime = fs(distance)
+        ptime = self.fp(distance)
+        stime = self.fs(distance)
         return (ptime,stime)
 
     
