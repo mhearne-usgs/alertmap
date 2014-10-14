@@ -178,6 +178,7 @@ def main(args):
        
     #loop over all the event realizations
     for i in range(0,len(lats)):
+        print 'Calculating arrival times for scenario %i of %i' % (i+1,len(lats))
         lat = lats[i]
         lon = lons[i]
         if i == 0:
@@ -220,7 +221,7 @@ def main(args):
                                crs=crs,count=1,height=m,width=n)
         timeio.write_band(1,timegrid)
         timeio.close()
-        print 'Writing time grid %s' % timefile
+        
         
 if __name__ == '__main__':
     desc = '''This script does the following:
