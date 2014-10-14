@@ -107,12 +107,12 @@ def writeGrind(config,datadir):
     gmpe = config.get('MAP','gmpe')
     gmice = config.get('MAP','gmice')
     ipe = config.get('MAP','ipe')
-    xmin = config.get('MAP','xmin')
-    xmax = config.get('MAP','xmax')
-    ymin = config.get('MAP','ymin')
-    ymax = config.get('MAP','ymax')
-    dx = config.get('MAP','dx')
-    dy = config.get('MAP','dy')
+    xmin = float(config.get('MAP','xmin'))
+    xmax = float(config.get('MAP','xmax'))
+    ymin = float(config.get('MAP','ymin'))
+    ymax = float(config.get('MAP','ymax'))
+    dx = float(config.get('MAP','dx'))
+    dy = float(config.get('MAP','dy'))
     lonspan = xmax - xmin
     latspan = ymax - ymin
     
@@ -121,10 +121,10 @@ def writeGrind(config,datadir):
     grindstr.replace('[GMPE]',gmpe)
     grindstr.replace('[GMICE]',gmice)
     grindstr.replace('[IPE]',ipe)
-    grindstr.replace('[DX]',dx)
-    grindstr.replace('[DY]',dy)
-    grindstr.replace('[LONSPAN]',lonspan)
-    grindstr.replace('[LATSPAN]',latspan)
+    grindstr.replace('[DX]',str(dx))
+    grindstr.replace('[DY]',str(dy))
+    grindstr.replace('[LONSPAN]',str(lonspan))
+    grindstr.replace('[LATSPAN]',str(latspan))
 
     f = open(grindfile,'wt')
     f.write(grindstr)
