@@ -73,7 +73,7 @@ def getEventText(eventfile,lat,lon):
     eventdict['minute'] = int(eq.getAttribute('minute'))
     eventdict['second'] = int(round(float(eq.getAttribute('year'))))
     eventdict['depth'] = float(eq.getAttribute('depth'))
-    eventdict['locstr'] = float(eq.getAttribute('locstring'))
+    eventdict['locstr'] = eq.getAttribute('locstring')
     root.unlink()
     eventtext = EVENT_DEFAULT
     for key,value in eventdict.iteritems():
