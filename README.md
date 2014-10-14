@@ -16,6 +16,7 @@ This package depends on:
  * scipy, a Python library which provides many user-friendly and efficient numerical routines such as routines for numerical integration and optimization. <a href="<a href="http://www.scipy.org/scipylib/index.html">http://www.scipy.org/scipylib/index.html</a>
  * obspy, a Python library for dealing with seismology data.
  * neicio, a Python library for reading/writing various spatial data formats (including ShakeMap grid.xml). 
+ * rasterio, a Python library for reading/writing various spatial data formats.
 
 The best way to install numpy,matplotlib,and scipy is to use one of the Python distributions described here:
 
@@ -30,6 +31,14 @@ pip install obspy
 To install neicio:
 
 pip install git+git://github.com/usgs/neicio.git
+
+Installing rasterio can be complicated, depending on your setup.  See this page:
+https://github.com/mapbox/rasterio
+
+or, if using Anaconda, you can install rasterio using the following command at the time of this writing:
+
+conda install -c https://conda.binstar.org/rsignell rasterio
+
 
 To install alertmap:
 
