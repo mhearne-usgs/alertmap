@@ -77,7 +77,7 @@ def getEventText(eventfile,lat,lon):
     root.unlink()
     eventtext = EVENT_DEFAULT
     for key,value in eventdict.iteritems():
-        eventtext = eventtext.replace(key.upper(),str(value))
+        eventtext = eventtext.replace('['+key.upper()']',str(value))
     return eventtext
     
 def getSlowestStation(lat,lon,depth):
