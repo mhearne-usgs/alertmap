@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+#stdlib imports
+import os.path
+
+#third party
 import numpy as np
 from scipy import interpolate
 
