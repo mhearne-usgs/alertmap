@@ -10,12 +10,12 @@ from xml.dom.minidom import parse
 #local imports
 from neicio.cmdoutput import getCommandOutput
 from neicio.shake import ShakeGrid
+from alertmap.travel import TravelTimeCalculator
 
 #third party imports
 from obspy.core.util import locations2degrees
 from obspy.fdsn import Client
 import numpy as np
-from scipy import interpolate
 
 SHAKEHOME = '/home/shake/ShakeMap'
 
@@ -58,16 +58,6 @@ pgm2mi: [GMICE]
 mi2pgm: [GMICE]
 '''
 
-def getTravelTimes(distance):
-    homedir = os.path.dirname(os.path.abspath(__file__)) #where is this script?
-    ttimefile = os.path.join(homedir,'alertmap','ttimes.csv')
-    data = np.loadtxt(ttimefile,delimiter=',',skiprows=1)
-    fp = interpolate.interp1d(data[:,0],data[:,1])
-    ptime = fp(distance)
-    fs = interpolate.interp1d(data[:,0],data[:,2])
-    stime = fs(distance)
-    return (ptime,stime)
-
 def getEventText(eventfile,lat,lon):
     root = parse(eventfile)
     eq = root.getElementsByTagName('earthquake')[0]
@@ -90,7 +80,7 @@ def getEventText(eventfile,lat,lon):
         eventtext = eventtext.replace('['+key.upper()+']',str(value))
     return eventtext
     
-def getSlowestStation(lat,lon,depth):
+def getSlowestStation(lat,lon,depth,calc):
     client = Client("IRIS")
     inventory = client.get_stations(latitude=lat, longitude=lon,maxradius=1.5)
     lats = []
@@ -108,7 +98,7 @@ def getSlowestStation(lat,lon,depth):
         slon = lons[i]
         distance = locations2degrees(lat,lon,slat,slon)
         distances.append(distance)
-        ptime,stime = getTravelTimes(distance)
+        ptime,stime = calc.getTravelTimes(distance)
         times.append(ptime)
     times = np.array(times)
     distances = np.array(distances)
@@ -169,7 +159,10 @@ def main(args):
     lons = [float(p) for p in config.get('FAULT','lons').split()]
 
     #write out a new grind.conf file
-    writeGrind(config,datadir)    
+    writeGrind(config,datadir)
+
+    #instantiate our p/s travel time calculator
+    calc = TravelTimeCalculator()
 
     #where is the grind binary?
     grindbin = os.path.join(SHAKEHOME,'bin','grind')
@@ -214,7 +207,7 @@ def main(args):
             for col in range(0,n):
                 mmilat,mmilon = mmigrid.getLatLon(row,col)
                 distance = locations2degrees(stationlat,stationlon,mmilat,mmilon)
-                ptime,stime = getTravelTimes(distance)
+                ptime,stime = calc.getTravelTimes(distance)
                 timegrid[row,col] = stime - ptime
         timegmt = GMTGrid()
         timegmt.griddata = timegrid
