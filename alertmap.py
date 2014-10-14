@@ -176,7 +176,7 @@ def main(args):
         f.write(sourcetext)
         f.close()
 
-        grindcmd = '%s -latoff %f -lonoff %f -event %s' % (latoff,lonoff,args.event)
+        grindcmd = '%s -latoff %f -lonoff %f -event %s' % (grindbin,latoff,lonoff,args.event)
         res,stdout,stderr = getCommandOutput(grindcmd)
         if not res:
             print 'Grind command failed: "%s", "%s"' % (stdout,stderr)
