@@ -204,7 +204,7 @@ def main(args):
         gridfile = os.path.join(datadir,'output','grid.xml')
         mmigrid = ShakeGrid(gridfile,variable='MMI')
         m,n = mmigrid.griddata.shape
-        timegrid = np.zeros((m,n))
+        timegrid = np.zeros((m,n),dtype=np.float32)
         for row in range(0,m):
             for col in range(0,n):
                 mmilat,mmilon = mmigrid.getLatLon(row,col)
@@ -218,7 +218,7 @@ def main(args):
         timeio = rasterio.open(timefile,mode='w',driver='GTiff',
                                dtype=rasterio.float32,transform=aff,
                                crs=crs,count=1,height=m,width=n)
-        timeio.write_band(1,timegrid.griddata)
+        timeio.write_band(1,timegrid)
         timeio.close()
         print 'Writing time grid %s' % timefile
         
