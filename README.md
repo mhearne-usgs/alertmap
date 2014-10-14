@@ -50,84 +50,36 @@ Command line usage
 ------------------
 
 <pre>
-usage: getstrong.py [-h] [-c] [-i INPUTFOLDER] [-d] [-r RADIUS] [-e EVENTID]
-                    [-y TIME LAT LON] [-w TIMEWINDOW] [-f FOLDER] [-u USER]
-                    [-p PASSWORD] [-n] [-o]
-                    {knet,geonet,turkey}
+usage: alertmap.py [-h] event
 
-        Download and process strong motion data from different sources
-        (NZ GeoNet, JP K-NET, Turkey) into peak ground motion values,
-        and output in an XML format suitable for inclusion in
-        ShakeMap.
-        
-        Generic (non-ShakeMap) Usage:
-        To configure the system for further use (you will be prompted for 
-        KNET username/password, and ShakeMap home):
-        getstrong.py -c
-        To process data from a local folder (rather than downloading from a remote source):
-        getstrong.py -i INPUTFOLDER -f OUTPUTFOLDER
-        To process data from a local folder and print peak ground motions to the screen:
-        getstrong.py -i INPUTFOLDER -d
-
-        To retrieve data from K-NET with a user-supplied K-NET username/password:
-        getstrong.py knet -f ~/tmp/knet -y 2014-05-04T20:18:24 34.862 139.312 -u fred -p SECRETPASSWD
-
-        To retrieve data from GeoNet:
-        getstrong.py geonet -f ~/tmp/knet -y 2014-01-20T02:52:44 40.660 175.814
-
-        To retrieve data from Turkey:
-        getstrong.py turkey -f ~/tmp/knet -y 2003-05-01T00:27:06 38.970 40.450
-
-        ###############################################################
-        For Shakemap Users:
-        To download K-NET data for an event into it's input folder, while retaining the raw data:
-        
-        getstrong.py knet -e EVENTID
-        
-        To download K-NET data for an event into it's input folder, while deleting the raw data:
-        
-        getstrong.py knet -e EVENTID -n
-        
+This script does the following:
+    1) Find ShakeMap event folder from input ID.
+    2) Parse alert.conf file in event data folder (i.e. /home/shake/ShakeMap/data/eventID/alert.conf)
+    [FAULTS]
+    lats = 32.1 32.2 32.3
+    lons = -118.1 -118.2 -118.3
+    [MAP]
+    gmpe = AkkarBommer07
+    gmice = WGRW11
+    ipe = AW07_CEUS
+    xmin = -119.0
+    xmax = -117.0
+    ymin = 31.0
+    ymax = 33.0
+    dx = 0.01
+    dy = 0.01
+    3) Replace grind.conf file in event data folder with one created using information supplied above
+    4) For each epicenter in (lats,lons):
+      a) Write new event.xml file
+      b) Run ShakeMap grind program
+      c) Find 4 nearest stations to epicenter, calculate P arrival times for each, return the slowest.
+      d) Calculate S arrival times for each cell in ShakeMap, subtract SlowP+8.5 from each.
+      e) Save grid of S arrival times
+    5) TODO SCIENCE
+    
 
 positional arguments:
-  {knet,geonet,turkey}  Specify strong motion data source.
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -c, -config           Create config file for future use
-  -i INPUTFOLDER, -inputfolder INPUTFOLDER
-                        process files from an input folder.
-  -d, -debug            print peak ground motions to the screen for debugging.
-  -r RADIUS, -radius RADIUS
-                        Specify distance window for search (km).
-  -e EVENTID, -event EVENTID
-                        Specify event ID (will search ShakeMap data directory.
-  -y TIME LAT LON, -hypocenter TIME LAT LON
-                        Specify UTC time, lat and lon. (time format YYYY-MM-
-                        DDTHH:MM:SS)
-  -w TIMEWINDOW, -window TIMEWINDOW
-                        Specify time window for search (seconds) (default:
-                        60).
-  -f FOLDER, -folder FOLDER
-                        Specify output station folder destination (defaults to
-                        event input folder or current working directory)
-  -u USER, -user USER   Specify K-NET user (defaults to value in config)
-  -p PASSWORD, -password PASSWORD
-                        Specify K-NET password (defaults to value in config)
-  -n, -nuke             Do NOT retain extracted raw data files
-  -o, -plot             Make QA plots
-</pre>
-
-<pre>
-usage: smcheck.py [-h] eventID dataFile
-
-Compare station data against a modeled ShakeMap.
-        
-
-positional arguments:
-  eventID     Specify event ID (will search ShakeMap data directory.
-  dataFile    Specify name of data file in event input folder to compare
-              against ShakeMap grid.
+  event       Select the event ID
 
 optional arguments:
   -h, --help  show this help message and exit
