@@ -10,7 +10,7 @@ from xml.dom.minidom import parse
 #local imports
 from neicio.cmdoutput import getCommandOutput
 from neicio.shake import ShakeGrid
-from travel import TravelTimeCalculator
+from travel.travel import TravelTimeCalculator
 
 #third party imports
 from obspy.core.util import locations2degrees
