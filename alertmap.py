@@ -60,7 +60,7 @@ mi2pgm: [GMICE]
 
 def getTravelTimes(distance):
     homedir = os.path.dirname(os.path.abspath(__file__)) #where is this script?
-    ttimefile = os.path.join(homedir,'ttimes.csv')
+    ttimefile = os.path.join(homedir,'alertmap','ttimes.csv')
     data = np.loadtxt(ttimefile,delimiter=',',skiprows=1)
     fp = interpolate.interp1d(data[:,0],data[:,1])
     ptime = fp(distance)
