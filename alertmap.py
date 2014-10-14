@@ -16,7 +16,8 @@ from travel.travel import TravelTimeCalculator
 from obspy.core.util import locations2degrees
 from obspy.fdsn import Client
 import numpy as np
-from neicio.gmt import GMTGrid
+import rasterio
+from affine import Affine
 
 SHAKEHOME = '/home/shake/ShakeMap'
 
@@ -210,11 +211,16 @@ def main(args):
                 distance = locations2degrees(stationlat,stationlon,mmilat,mmilon)
                 ptime,stime = calc.getTravelTimes(distance)
                 timegrid[row,col] = stime - ptime
-        timegmt = GMTGrid()
-        timegmt.griddata = timegrid
-        timegmt.geodict = mmigrid.geodict
-        timefile = os.path.join(datadir,'output','timegrid%03i.grd' % i)
-        timegmt.save(timefile)
+        
+        timefile = os.path.join(datadir,'output','timegrid%03i.tif' % i)
+        aff = Affine(mmigrid.geodict['xdim'],0.0,mmigrid.geodict['xmin'],0.0,mmigrid.geodict['xdim'],mmigrid.geodict['ymax'])
+        crs = {'init': u'epsg:4326'}
+        timeio = rasterio.open(timefile,mode='w',driver='GTiff',
+                               dtype=rasterio.float32,transform=aff,
+                               crs=crs,count=1,height=m,width=n)
+        timeio.write_band(1,timegrid.griddata)
+        timeio.close()
+        print 'Writing time grid %s' % timefile
         
 if __name__ == '__main__':
     desc = '''This script does the following:
