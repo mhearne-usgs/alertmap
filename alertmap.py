@@ -212,7 +212,7 @@ def main(args):
                 ptime,stime = calc.getTravelTimes(distance)
                 timegrid[row,col] = stime - ptime
         
-        timefile = os.path.join(datadir,'output','timegrid%03i.tif' % i)
+        timefile = os.path.join(datadir,'output','timegrid%03i.tif' % i+1)
         aff = Affine(mmigrid.geodict['xdim'],0.0,mmigrid.geodict['xmin'],0.0,mmigrid.geodict['xdim'],mmigrid.geodict['ymax'])
         crs = {'no_defs': True, 'ellps': 'WGS84', 'datum': 'WGS84', 'proj': 'longlat'}
         timeio = rasterio.open(timefile,mode='w',driver='GTiff',
