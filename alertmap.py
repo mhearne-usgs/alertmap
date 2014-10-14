@@ -118,13 +118,13 @@ def writeGrind(config,datadir):
     
     grindfile = os.path.join(datadir,'config','grind.conf')
     grindstr = GRIND_DEFAULT
-    grindstr.replace('[GMPE]',gmpe)
-    grindstr.replace('[GMICE]',gmice)
-    grindstr.replace('[IPE]',ipe)
-    grindstr.replace('[DX]',str(dx))
-    grindstr.replace('[DY]',str(dy))
-    grindstr.replace('[LONSPAN]',str(lonspan))
-    grindstr.replace('[LATSPAN]',str(latspan))
+    grindstr = grindstr.replace('[GMPE]',gmpe)
+    grindstr = grindstr.replace('[GMICE]',gmice)
+    grindstr = grindstr.replace('[IPE]',ipe)
+    grindstr = grindstr.replace('[DX]',str(dx))
+    grindstr = grindstr.replace('[DY]',str(dy))
+    grindstr = grindstr.replace('[LONSPAN]',str(lonspan))
+    grindstr = grindstr.replace('[LATSPAN]',str(latspan))
 
     f = open(grindfile,'wt')
     f.write(grindstr)
