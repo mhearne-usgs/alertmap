@@ -213,7 +213,7 @@ def main(args):
         timegmt = GMTGrid()
         timegmt.griddata = timegrid
         timegmt.geodict = mmigrid.geodict
-        timefile = os.path.join(datadir,'output','timegrid%03i' % i)
+        timefile = os.path.join(datadir,'output','timegrid%03i.grd' % i)
         timegmt.save(timefile)
         
 if __name__ == '__main__':
