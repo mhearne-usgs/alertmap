@@ -13,9 +13,9 @@ from neicio.shake import ShakeGrid
 
 #third party imports
 from obspy.core.util import locations2degrees
-from obspy.taup.taup import getTravelTimes
 from obspy.fdsn import Client
 import numpy as np
+from scipy import interpolate
 
 SHAKEHOME = '/home/shake/ShakeMap'
 
@@ -58,6 +58,16 @@ pgm2mi: [GMICE]
 mi2pgm: [GMICE]
 '''
 
+def getTravelTimes(distance):
+    homedir = os.path.dirname(os.path.abspath(__file__)) #where is this script?
+    ttimefile = os.path.join(homedir,'ttimes.csv')
+    data = np.loadtxt(ttimefile,delimiter=',',skiprows=1)
+    fp = interpolate.interp1d(data[:,0],data[:,1])
+    ptime = fp(distance)
+    fs = interpolate.interp1d(data[:,0],data[:,2])
+    stime = fs(distance)
+    return (ptime,stime)
+
 def getEventText(eventfile,lat,lon):
     root = parse(eventfile)
     eq = root.getElementsByTagName('earthquake')[0]
@@ -82,24 +92,35 @@ def getEventText(eventfile,lat,lon):
     
 def getSlowestStation(lat,lon,depth):
     client = Client("IRIS")
-    inventory = client.get_stations(latitude=lat, longitude=lon,maxradius=15)
+    inventory = client.get_stations(latitude=lat, longitude=lon,maxradius=1.5)
     lats = []
     lons = []
     for network in inventory.networks:
         for station in network.stations:
             lats.append(station.latitude)
             lons.append(station.longitude)
+    lats = np.array(lats)
+    lons = np.array(lons)
+    distances = []
+    times = []
     for i in range(0,len(lats)):
         slat = lats[i]
         slon = lons[i]
         distance = locations2degrees(lat,lon,slat,slon)
-        timedict = getTravelTimes(distance,depth)
-        times = []
-        for phasetime in timedict:
-            if phasetime['phase_name'] == 'P':
-                times.append(phasetime['time'])
-                break
+        distances.append(distance)
+        ptime,stime = getTravelTimes(distance)
+        times.append(ptime)
     times = np.array(times)
+    distances = np.array(distances)
+    sortidx = np.argsort(distances)
+    distances = distances[sortidx]
+    times = times[sortidx]
+    lats = lats[sortidx]
+    lons = lons[sortidx]
+    distances = distances[0:4]
+    times = times[0:4]
+    lats = lats[0:4]
+    lons = lons[0:4]
     idx = times.argmax()
     return (lats[idx],lons[idx],times[idx])
 
@@ -193,13 +214,8 @@ def main(args):
             for col in range(0,n):
                 mmilat,mmilon = mmigrid.getLatLon(row,col)
                 distance = locations2degrees(stationlat,stationlon,mmilat,mmilon)
-                timelist = getTravelTimes(distance,depth)
-                time = None
-                for phasetime in timelist:
-                    if phasetime['phase_name'] == 'S':
-                        time = phasetime['time']
-                        break
-                timegrid[row,col] = time
+                ptime,stime = getTravelTimes(distance)
+                timegrid[row,col] = stime - ptime
         timegmt = GMTGrid()
         timegmt.griddata = timegrid
         timegmt.geodict = mmigrid.geodict

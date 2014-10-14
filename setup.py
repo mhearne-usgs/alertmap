@@ -7,4 +7,5 @@ setup(name='alertmap',
       author_email='mhearne@usgs.gov',
       url='',
       scripts = ['alertmap.py'],
+      package_data = {'ttimes.csv']},
 )
