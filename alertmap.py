@@ -10,7 +10,7 @@ from xml.dom.minidom import parse
 #local imports
 from neicio.cmdoutput import getCommandOutput
 from neicio.shake import ShakeGrid
-from travel.travel import TravelTimeCalculator
+from travel import TravelTimeCalculator
 
 #third party imports
 from obspy.core.util import locations2degrees
@@ -80,7 +80,7 @@ def getEventText(eventfile,lat,lon):
         eventtext = eventtext.replace('['+key.upper()+']',str(value))
     return eventtext
     
-def getSlowestStation(lat,lon,depth,calc):
+def getSlowestStation(lat,lon,calc):
     client = Client("IRIS")
     inventory = client.get_stations(latitude=lat, longitude=lon,maxradius=1.5)
     lats = []
@@ -196,7 +196,7 @@ def main(args):
             print 'Grind command failed: "%s", "%s"' % (stdout,stderr)
             sys.exit(1)
 
-        stationlat,stationlon,ptime = getSlowestStation(lat,lon,depth)
+        stationlat,stationlon,ptime = getSlowestStation(lat,lon,calc)
             
         #Get the grid.xml output, do some time calculations
         gridfile = os.path.join(datadir,'output','grid.xml')
