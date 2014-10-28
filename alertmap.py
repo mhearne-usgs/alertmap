@@ -147,6 +147,13 @@ def main(args):
     if not os.path.isdir(datadir):
         print 'Cannot find event %s on the system' % args.event
         sys.exit(1)
+
+    #Make sure the timeoutput folder is there (can't put our time grids in output - that gets
+    #wiped out every time shakemap runs
+    outfolder = os.path.join(datadir,'timeoutput')
+    if not os.path.isdir(outfolder):
+        os.makedirs(outfolder)
+        
     #now look for config file in top-level folder
     configfile = os.path.join(datadir,'alert.conf')
     if not os.path.isfile(configfile):
@@ -212,7 +219,7 @@ def main(args):
                 ptime,stime = calc.getTravelTimes(distance)
                 timegrid[row,col] = stime - ptime
         
-        timefile = os.path.join(datadir,'output','timegrid%03i.flt' % (i+1))
+        timefile = os.path.join(outfolder,'timegrid%03i.flt' % (i+1))
         metadict = {'epilat':lat,'epilon':lon,'eventid':args.event}
         saveTimeGrid(timefile,timegrid,mmigrid.geodict,metadict)
         
