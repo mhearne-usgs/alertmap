@@ -218,7 +218,7 @@ def main(args):
         for row in range(0,m):
             for col in range(0,n):
                 mmilat,mmilon = mmigrid.getLatLon(row,col)
-                if mmigrid.getValue(mmilat,mmilon) < mmithresh:
+                if mmigrid.griddata[row,col] < mmithresh:
                     timegrid[row,col] = np.nan
                 distance = locations2degrees(stationlat,stationlon,mmilat,mmilon)
                 ptime,stime = calc.getTravelTimes(distance)
