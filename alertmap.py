@@ -212,7 +212,7 @@ def main(args):
                 ptime,stime = calc.getTravelTimes(distance)
                 timegrid[row,col] = stime - ptime
         
-        timefile = os.path.join(datadir,'output','timegrid%03i.tif' % (i+1))
+        timefile = os.path.join(datadir,'output','timegrid%03i.flt' % (i+1))
         metadict = {'epilat':lat,'epilon':lon,'eventid':args.event}
         saveTimeGrid(timefile,timegrid,mmigrid.geodict,metadict)
         
