@@ -68,6 +68,7 @@ This script does the following:
     lats = 32.1 32.2 32.3
     lons = -118.1 -118.2 -118.3
     [MAP]
+    mmithresh = 6.0 #MMI value below which alert time will not be saved
     gmpe = AkkarBommer07
     gmice = WGRW11
     ipe = AW07_CEUS

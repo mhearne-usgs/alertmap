@@ -162,6 +162,9 @@ def main(args):
     config = ConfigParser.ConfigParser()
     config.readfp(open(configfile))
 
+    #Get the MMI threshold below which alert times will NOT be saved
+    mmithresh = float(config.get('MAP','mmithresh'))
+
     #get the array of epicenters
     lats = [float(p) for p in config.get('FAULT','lats').split()]
     lons = [float(p) for p in config.get('FAULT','lons').split()]
@@ -214,6 +217,8 @@ def main(args):
         timegrid = np.zeros((m,n),dtype=np.float32)
         for row in range(0,m):
             for col in range(0,n):
+                if mmigrid.getValue(row,col) < mmithresh:
+                    timegrid[row,col] = np.nan
                 mmilat,mmilon = mmigrid.getLatLon(row,col)
                 distance = locations2degrees(stationlat,stationlon,mmilat,mmilon)
                 ptime,stime = calc.getTravelTimes(distance)
@@ -232,6 +237,7 @@ if __name__ == '__main__':
     lats = 32.1 32.2 32.3
     lons = -118.1 -118.2 -118.3
     [MAP]
+    mmithresh = 6.0 #MMI value below which alert times will NOT be saved
     gmpe = AkkarBommer07
     gmice = WGRW11
     ipe = AW07_CEUS
