@@ -91,7 +91,7 @@ def readTimeGrid(timefile):
     aff = src.affine
     xdim = aff[0]
     xmin = aff[2]
-    ydim = aff[4]
+    ydim = -aff[4]
     ymax = aff[5]
     src.close()
     timegrid = GMTGrid()
