@@ -203,21 +203,21 @@ def makeMap(statgrid,timegrid,metadata,method,datadir):
                 resolution='h',projection='merc',lat_ts=clat)
     m.imshow(np.flipud(statgrid))
     water_color = [.47,.60,.81]
-    mapcontour.drawrivers(color=water_color)
-    mapcontour.drawcountries(color='k',linewidth=2.0)
+    m.drawrivers(color=water_color)
+    m.drawcountries(color='k',linewidth=2.0)
     mer = getMapLines(bounds[0],bounds[1])
     par = getMapLines(bounds[2],bounds[3])
     
-    xmap_range = mapcontour.xmax-mapcontour.xmin
-    ymap_range = mapcontour.ymax-mapcontour.ymin
+    xmap_range = m.xmax-m.xmin
+    ymap_range = m.ymax-m.ymin
     xoff = -0.09*(xmap_range)
     yoff = -0.04*(ymap_range)
 
-    mapcontour.drawmeridians(mer,labels=[0,0,1,0],fontsize=8,
+    m.drawmeridians(mer,labels=[0,0,1,0],fontsize=8,
                              linewidth=0.5,color='white',yoffset=yoff,xoffset=xoff,dashes=[1,0.01])
-    mapcontour.drawparallels(par,labels=[0,1,0,0],fontsize=8,
+    m.drawparallels(par,labels=[0,1,0,0],fontsize=8,
                              linewidth=0.5,color='white',yoffset=yoff,xoffset=xoff,dashes=[1,0.01])
-    mapcontour.drawmapboundary(color='k',linewidth=2.0)
+    m.drawmapboundary(color='k',linewidth=2.0)
     outfile = os.path.join(datadir,method+'.pdf')
     plt.savefig(outfile)
     
