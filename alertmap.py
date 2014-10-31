@@ -328,7 +328,7 @@ def main(args):
             statgrid = np.min(timestack,axis=2)
         if method == 'max':
             statgrid = np.max(timestack,axis=2)    
-        makeMap(statgrid,timegrid.geodict,metadata,method,outfolder)
+        makeMap(statgrid,timegrid,metadata,method,outfolder)
         
 if __name__ == '__main__':
     desc = '''This script does the following:
