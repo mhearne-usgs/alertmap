@@ -10,6 +10,7 @@ from xml.dom.minidom import parse
 #local imports
 from neicio.cmdoutput import getCommandOutput
 from neicio.shake import ShakeGrid
+from neicio.esri import EsriGrid
 from travel.travel import TravelTimeCalculator,saveTimeGrid,readTimeGrid
 
 #third party imports
