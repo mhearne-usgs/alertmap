@@ -201,7 +201,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir):
     m = Basemap(llcrnrlon=bounds[0],llcrnrlat=bounds[2],
                 urcrnrlon=bounds[1],urcrnrlat=bounds[3],
                 resolution='h',projection='merc',lat_ts=clat)
-    m.imshow(statgrid.flipud)
+    m.imshow(np.flipud(statgrid))
     water_color = [.47,.60,.81]
     mapcontour.drawrivers(color=water_color)
     mapcontour.drawcountries(color='k',linewidth=2.0)
