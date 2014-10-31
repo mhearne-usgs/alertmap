@@ -212,8 +212,8 @@ def getLatLonGrids(shake):
     elif len(latcol) > nrows:
         latcol = latcol[0:-1]
 
-    longrid = zeros((len(latcol),len(lonrow)),dtype=float)
-    latgrid = zeros((len(latcol),len(lonrow)),dtype=float)
+    longrid = np.zeros((len(latcol),len(lonrow)),dtype=float)
+    latgrid = np.zeros((len(latcol),len(lonrow)),dtype=float)
     for i in range(0,len(lonrow)):
         longrid[:,i] = lonrow[i]
     for i in range(0,len(latcol)):
