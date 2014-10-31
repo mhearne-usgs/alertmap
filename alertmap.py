@@ -252,7 +252,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap):
  
     i = np.where(np.isnan(popdata))
     popdata[i] = -1
-    popdatam = ma.masked_values(popdata, -1)
+    popdatam = np.ma.masked_values(popdata, -1)
     palette.set_bad(WATER_COLOR,1.0)
     
     ncolors = len(boundaries)
