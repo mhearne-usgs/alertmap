@@ -260,8 +260,9 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap):
 
     (lons,lats) = getLatLonGrids(timegrid)
     (x,y) = m(lons,lats)
-    m.contour(x,y,statgrid)
-    
+    clevels = np.arange(np.floor(statgrid.min()),np.ceil(statgrid.max()))
+    cs = m.contour(x,y,statgrid,clevels)
+    labels = [str(c)+' sec' for c in clevels]
     
     m.drawrivers(color=WATER_COLOR)
     m.drawcountries(color='k',linewidth=2.0)
@@ -279,7 +280,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap):
                              linewidth=0.5,color='black',yoffset=yoff,xoffset=xoff,dashes=[1,0.01])
     m.drawmapboundary(color='k',linewidth=2.0)
 
-    plt.legend()
+    plt.legend(cs,labels)
     
     outfile = os.path.join(datadir,method+'.pdf')
     plt.savefig(outfile)
