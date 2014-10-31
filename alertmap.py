@@ -250,7 +250,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap):
     boundaries = cmap.getZValues()
     palette = ListedColormap(clist,'my_colormap')
  
-    i = numpy.where(numpy.isnan(popdata))
+    i = np.where(np.isnan(popdata))
     popdata[i] = -1
     popdatam = ma.masked_values(popdata, -1)
     palette.set_bad(WATER_COLOR,1.0)
