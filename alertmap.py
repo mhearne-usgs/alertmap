@@ -20,9 +20,10 @@ import numpy as np
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
 from neicutil.text import roundToNearest,ceilToNearest,floorToNearest
+from neicutil.colormap import GMTColormap
+from matplotlib.colors import ListedColormap,LinearSegmentedColormap,Normalize,BoundaryNorm
 
-
-SHAKEHOMELIST = ['/home/shake/ShakeMap','/opt/local/ShakeMap/'] #possible locations for ShakeMap installations
+WATER_COLOR = [.47,.60,.81]
 
 EVENT_DEFAULT = '''<?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
 <earthquake id="[EVENTID]" lat="[LAT]" lon="[LON]" mag="[MAG]" year="[YEAR]" month="[MONTH]" day="[DAY]" hour="[HOUR]" minute="[MINUTE]" second="[SECOND]" timezone="GMT" depth="[DEPTH]" locstring="[LOCSTR]" created="1407055672" otime="1407054613" type="" network="us" />
@@ -220,7 +221,7 @@ def getLatLonGrids(shake):
         latgrid[i,:] = latcol[i]
     return longrid,latgrid
 
-def makeMap(statgrid,timegrid,metadata,method,datadir,popfile):
+def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap):
     figwidth = 8.0
     bounds = timegrid.getRange()
     bounds = list(bounds)
@@ -238,18 +239,31 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile):
     m = Basemap(llcrnrlon=bounds[0],llcrnrlat=bounds[2],
                 urcrnrlon=bounds[1],urcrnrlat=bounds[3],
                 resolution='h',projection='merc',lat_ts=clat)
-
+    
     #get the population grid
     popgrid = EsriGrid(popfile)
     popgrid.load(bounds=bounds)
-    m.imshow(np.flipud(popgrid.griddata))
+    popdata = popgrid.griddata
+
+    cmap = GMTColormap(popcolormap)
+    clist = cmap.getColorList()
+    boundaries = cmap.getZValues()
+    palette = ListedColormap(clist,'my_colormap')
+ 
+    i = numpy.where(numpy.isnan(popdata))
+    popdata[i] = -1
+    popdatam = ma.masked_values(popdata, -1)
+    palette.set_bad(WATER_COLOR,1.0)
+    
+    ncolors = len(boundaries)
+    am = mapcontour.imshow(popdatam,cmap=palette,norm=BoundaryNorm(boundaries,ncolors),interpolation='nearest')
 
     (lons,lats) = getLatLonGrids(timegrid)
     (x,y) = m(lons,lats)
     m.contour(x,y,statgrid)
     
-    water_color = [.47,.60,.81]
-    m.drawrivers(color=water_color)
+    
+    m.drawrivers(color=WATER_COLOR)
     m.drawcountries(color='k',linewidth=2.0)
     mer = getMapLines(bounds[0],bounds[1])
     par = getMapLines(bounds[2],bounds[3])
@@ -260,9 +274,9 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile):
     yoff = -0.04*(ymap_range)
 
     m.drawmeridians(mer,labels=[0,0,1,0],fontsize=8,
-                             linewidth=0.5,color='white',yoffset=yoff,xoffset=xoff,dashes=[1,0.01])
+                             linewidth=0.5,color='black',yoffset=yoff,xoffset=xoff,dashes=[1,0.01])
     m.drawparallels(par,labels=[0,1,0,0],fontsize=8,
-                             linewidth=0.5,color='white',yoffset=yoff,xoffset=xoff,dashes=[1,0.01])
+                             linewidth=0.5,color='black',yoffset=yoff,xoffset=xoff,dashes=[1,0.01])
     m.drawmapboundary(color='k',linewidth=2.0)
     outfile = os.path.join(datadir,method+'.pdf')
     plt.savefig(outfile)
@@ -276,6 +290,7 @@ def getGlobalConfig():
     gdict = {}
     gdict['shakehome'] = config.get('GLOBAL','shakehome')
     gdict['popfile'] = config.get('GLOBAL','popfile')
+    gdict['popcolormap'] = config.get('GLOBAL','popcolormap')
     return gdict
     
 def main(args):
@@ -388,7 +403,7 @@ def main(args):
             statgrid = np.min(timestack,axis=2)
         if method == 'max':
             statgrid = np.max(timestack,axis=2)    
-        makeMap(statgrid,timegrid,metadata,method,outfolder,popfile)
+        makeMap(statgrid,timegrid,metadata,method,outfolder,popfile,globaldict['popcolormap'])
         
 if __name__ == '__main__':
     desc = '''This script does the following:
