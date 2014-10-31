@@ -184,7 +184,42 @@ def getMapLines(dmin,dmax):
     darray = np.arange(newdmin,newdmax,inc)
     return darray
 
-def makeMap(statgrid,timegrid,metadata,method,datadir):
+def getLatLonGrids(shake):
+    dims = shake.getData().shape
+    nrows = dims[0]
+    ncols = dims[1]
+    geodict = shake.getGeoDict()
+    xmin = geodict['xmin']
+    xmax = geodict['xmax']
+    ymin = geodict['ymin']
+    ymax = geodict['ymax']
+    xdim = geodict['xdim']
+    ydim = geodict['ydim']
+
+    if xmax < xmin:
+        xmax = xmax + 360
+
+    lonrow = arange(xmin,xmax,xdim)
+    latcol = arange(ymin,ymax,ydim)
+
+    if len(lonrow) < ncols:
+        lonrow = concatenate((lonrow,[xmax]))
+    elif len(lonrow) > ncols:
+        lonrow = lonrow[0:-1]
+    if len(latcol) < nrows:
+        latcol = concatenate((latcol,[ymax]))
+    elif len(latcol) > nrows:
+        latcol = latcol[0:-1]
+
+    longrid = zeros((len(latcol),len(lonrow)),dtype=float)
+    latgrid = zeros((len(latcol),len(lonrow)),dtype=float)
+    for i in range(0,len(lonrow)):
+        longrid[:,i] = lonrow[i]
+    for i in range(0,len(latcol)):
+        latgrid[i,:] = latcol[i]
+    return longrid,latgrid
+
+def makeMap(statgrid,timegrid,metadata,method,datadir,popfile):
     figwidth = 8.0
     bounds = timegrid.getRange()
     bounds = list(bounds)
@@ -202,7 +237,16 @@ def makeMap(statgrid,timegrid,metadata,method,datadir):
     m = Basemap(llcrnrlon=bounds[0],llcrnrlat=bounds[2],
                 urcrnrlon=bounds[1],urcrnrlat=bounds[3],
                 resolution='h',projection='merc',lat_ts=clat)
-    m.imshow(np.flipud(statgrid))
+
+    #get the population grid
+    popgrid = EsriGrid(popfile)
+    popgrid.load(bounds=bounds)
+    m.imshow(np.flipud(popgrid.griddata))
+
+    (lons,lats) = getLatLonGrids(timegrid)
+    (x,y) = mapcontour(lons,lats)
+    m.contour(x,y,statgrid)
+    
     water_color = [.47,.60,.81]
     m.drawrivers(color=water_color)
     m.drawcountries(color='k',linewidth=2.0)
@@ -219,11 +263,24 @@ def makeMap(statgrid,timegrid,metadata,method,datadir):
     m.drawparallels(par,labels=[0,1,0,0],fontsize=8,
                              linewidth=0.5,color='white',yoffset=yoff,xoffset=xoff,dashes=[1,0.01])
     m.drawmapboundary(color='k',linewidth=2.0)
-    outfile = os.path.join(datadir,method+'.png')
+    outfile = os.path.join(datadir,method+'.pdf')
     plt.savefig(outfile)
+
+def getGlobalConfig():
+    configfile = os.path.join(os.path.expanduser('~'),'.alertmap','config.ini')
+    if not os.path.isfile(configfile):
+        raise Exception,'Could not find global config file "%s".' % configfile
+    config = ConfigParser.ConfigParser()
+    config.readfp(open(configfile))
+    gdict = {}
+    gdict['shakehome'] = config.get('GLOBAL','shakehome')
+    gdict['popfile'] = config.get('GLOBAL','popfile')
+    return gdict
     
 def main(args):
-    shakehome = detectShakeHome()
+    globaldict = getGlobalConfig()
+    shakehome = globaldict['shakehome']
+    popfile = globaldict['popfile']
     if shakehome is None:
         print 'Cannot find ShakeMap home folder on this system.'
         sys.exit(1)
@@ -330,7 +387,7 @@ def main(args):
             statgrid = np.min(timestack,axis=2)
         if method == 'max':
             statgrid = np.max(timestack,axis=2)    
-        makeMap(statgrid,timegrid,metadata,method,outfolder)
+        makeMap(statgrid,timegrid,metadata,method,outfolder,popfile)
         
 if __name__ == '__main__':
     desc = '''This script does the following:
