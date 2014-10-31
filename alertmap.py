@@ -195,7 +195,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir):
     clon = bounds[0] + (bounds[1] - bounds[0])/2
     dx = (bounds[1] - bounds[0])*111191 * np.cos(np.degrees(clat))
     dy = (bounds[3] - bounds[2])*111191
-    aspect = dy/dx
+    aspect = np.abs(dy/dx)
     figheight = aspect * figwidth
     fig = plt.figure(figsize=(figwidth,figheight),edgecolor='g',facecolor='g')
     ax1 = fig.add_axes([0,0,1.0,1.0])
