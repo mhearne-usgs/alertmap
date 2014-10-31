@@ -200,8 +200,8 @@ def getLatLonGrids(shake):
     if xmax < xmin:
         xmax = xmax + 360
 
-    lonrow = arange(xmin,xmax,xdim)
-    latcol = arange(ymin,ymax,ydim)
+    lonrow = np.arange(xmin,xmax,xdim)
+    latcol = np.arange(ymin,ymax,ydim)
 
     if len(lonrow) < ncols:
         lonrow = concatenate((lonrow,[xmax]))
