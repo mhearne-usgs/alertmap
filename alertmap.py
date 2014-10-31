@@ -245,7 +245,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile):
     m.imshow(np.flipud(popgrid.griddata))
 
     (lons,lats) = getLatLonGrids(timegrid)
-    (x,y) = mapcontour(lons,lats)
+    (x,y) = m(lons,lats)
     m.contour(x,y,statgrid)
     
     water_color = [.47,.60,.81]
