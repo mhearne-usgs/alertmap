@@ -316,7 +316,7 @@ def main(args):
     for i in range(0,len(timefiles)):
         timefile = timefiles[i]
         timegrid,metadata = readTimeGrid(timefile)
-        timestack[:,:,i] = timegrid
+        timestack[:,:,i] = timegrid.griddata
 
     methods = config.get('MAP','output').split(',')
     for method in methods:
