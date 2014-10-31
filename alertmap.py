@@ -256,7 +256,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap):
     palette.set_bad(WATER_COLOR,1.0)
     
     ncolors = len(boundaries)
-    am = mapcontour.imshow(popdatam,cmap=palette,norm=BoundaryNorm(boundaries,ncolors),interpolation='nearest')
+    am = m.imshow(popdatam,cmap=palette,norm=BoundaryNorm(boundaries,ncolors),interpolation='nearest')
 
     (lons,lats) = getLatLonGrids(timegrid)
     (x,y) = m(lons,lats)
