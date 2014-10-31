@@ -278,6 +278,9 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap):
     m.drawparallels(par,labels=[0,1,0,0],fontsize=8,
                              linewidth=0.5,color='black',yoffset=yoff,xoffset=xoff,dashes=[1,0.01])
     m.drawmapboundary(color='k',linewidth=2.0)
+
+    plt.legend()
+    
     outfile = os.path.join(datadir,method+'.pdf')
     plt.savefig(outfile)
 
