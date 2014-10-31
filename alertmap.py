@@ -10,15 +10,16 @@ from xml.dom.minidom import parse
 #local imports
 from neicio.cmdoutput import getCommandOutput
 from neicio.shake import ShakeGrid
-from travel.travel import TravelTimeCalculator,saveTimeGrid
+from travel.travel import TravelTimeCalculator,saveTimeGrid,readTimeGrid
 
 #third party imports
 from obspy.core.util import locations2degrees
 from obspy.fdsn import Client
 import numpy as np
+from mpl_toolkits.basemap import Basemap
 
 
-SHAKEHOME = '/home/shake/ShakeMap'
+SHAKEHOMELIST = ['/home/shake/ShakeMap','/opt/local/ShakeMap/'] #possible locations for ShakeMap installations
 
 EVENT_DEFAULT = '''<?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
 <earthquake id="[EVENTID]" lat="[LAT]" lon="[LON]" mag="[MAG]" year="[YEAR]" month="[MONTH]" day="[DAY]" hour="[HOUR]" minute="[MINUTE]" second="[SECOND]" timezone="GMT" depth="[DEPTH]" locstring="[LOCSTR]" created="1407055672" otime="1407054613" type="" network="us" />
@@ -86,12 +87,15 @@ def getSlowestStation(lat,lon,calc):
     inventory = client.get_stations(latitude=lat, longitude=lon,maxradius=1.5)
     lats = []
     lons = []
+    codes = []
     for network in inventory.networks:
         for station in network.stations:
             lats.append(station.latitude)
             lons.append(station.longitude)
+            codes.append(station.code)
     lats = np.array(lats)
     lons = np.array(lons)
+    codes = np.array(codes)
     distances = []
     times = []
     for i in range(0,len(lats)):
@@ -108,12 +112,14 @@ def getSlowestStation(lat,lon,calc):
     times = times[sortidx]
     lats = lats[sortidx]
     lons = lons[sortidx]
+    codes = codes[sortidx]
     distances = distances[0:4]
     times = times[0:4]
     lats = lats[0:4]
     lons = lons[0:4]
+    codes = codes[0:4]
     idx = times.argmax()
-    return (lats[idx],lons[idx],times[idx])
+    return (lats[idx],lons[idx],times[idx],codes[idx])
 
 def writeGrind(config,datadir):
     gmpe = config.get('MAP','gmpe')
@@ -142,8 +148,84 @@ def writeGrind(config,datadir):
     f.write(grindstr)
     f.close()
 
+def detectShakeHome():
+    isFound = False
+    for shakehome in SHAKEHOMELIST:
+        grind = os.path.join(shakehome,'bin','grind')
+        if os.path.isfile(grind):
+            isFound = True
+            break
+    if isFound:
+        return shakehome
+    else:
+        return None
+
+def getMapLines(dmin,dmax):
+    NLINES = 4
+    drange = dmax-dmin
+    if drange > 4:
+        near = 1
+    else:
+        if drange >= 0.5:
+            near = 0.25
+        else:
+            near = 0.125
+    inc = roundToNearest(drange/NLINES,near)
+    if inc == 0:
+        near = pow(10,round(log10(drange))) #make the increment the closest power of 10
+        inc = ceilToNearest(drange/NLINES,near)
+        newdmin = floorToNearest(dmin,near)
+        newdmax = ceilToNearest(dmax,near)
+    else:
+        newdmin = ceilToNearest(dmin,near)
+        newdmax = floorToNearest(dmax,near)
+    darray = arange(newdmin,newdmax,inc)
+    return darray
+
+def makeMap(statgrid,timegrid,metadata,method,datadir):
+    figwidth = 8.0
+    bounds = timegrid.getRange()
+    bounds = list(bounds)
+    if bounds[1] < 0 and bounds[0] > bounds[1]:
+        bounds[1] = bounds[1] + 360
+
+    clat = bounds[2] + (bounds[3] - bounds[2])/2
+    clon = bounds[0] + (bounds[1] - bounds[0])/2
+    dx = (bounds[1] - bounds[0])*111191 * np.cos(np.degrees(clat))
+    dy = (bounds[3] - bounds[2])*111191
+    aspect = dy/dx
+    figheight = aspect * figwidth
+    fig = figure(figsize=(figwidth,figheight),edgecolor='g',facecolor='g')
+    ax1 = fig.add_axes([0,0,1.0,1.0])
+    m = Basemap(llcrnrlon=bounds[0],llcrnrlat=bounds[2],
+                urcrnrlon=bounds[1],urcrnrlat=bounds[3],
+                resolution='h',projection='merc',lat_ts=clat)
+    m.imshow(statgrid.flipud)
+    water_color = [.47,.60,.81]
+    mapcontour.drawrivers(color=water_color)
+    mapcontour.drawcountries(color='k',linewidth=2.0)
+    mer = getMapLines(bounds[0],bounds[1])
+    par = getMapLines(bounds[2],bounds[3])
+    
+    xmap_range = mapcontour.xmax-mapcontour.xmin
+    ymap_range = mapcontour.ymax-mapcontour.ymin
+    xoff = -0.09*(xmap_range)
+    yoff = -0.04*(ymap_range)
+
+    mapcontour.drawmeridians(mer,labels=[0,0,1,0],fontsize=8,
+                             linewidth=0.5,color='white',yoffset=yoff,xoffset=xoff,dashes=[1,0.01])
+    mapcontour.drawparallels(par,labels=[0,1,0,0],fontsize=8,
+                             linewidth=0.5,color='white',yoffset=yoff,xoffset=xoff,dashes=[1,0.01])
+    mapcontour.drawmapboundary(color='k',linewidth=2.0)
+    outfile = os.path.join(datadir,method+'.pdf')
+    plt.savefig(outfile)
+    
 def main(args):
-    datadir = os.path.join(SHAKEHOME,'data',args.event)
+    shakehome = detectShakeHome()
+    if shakehome is None:
+        print 'Cannot find ShakeMap home folder on this system.'
+        sys.exit(1)
+    datadir = os.path.join(shakehome,'data',args.event)
     if not os.path.isdir(datadir):
         print 'Cannot find event %s on the system' % args.event
         sys.exit(1)
@@ -176,7 +258,7 @@ def main(args):
     calc = TravelTimeCalculator()
 
     #where is the grind binary?
-    grindbin = os.path.join(SHAKEHOME,'bin','grind')
+    grindbin = os.path.join(shakehome,'bin','grind')
 
     #specify the event.xml file, get the depth of the event
     eventfile = os.path.join(datadir,'input','event.xml')
@@ -186,6 +268,7 @@ def main(args):
     root.unlink()
        
     #loop over all the event realizations
+    timefiles = []
     for i in range(0,len(lats)):
         print 'Calculating arrival times for scenario %i of %i' % (i+1,len(lats))
         lat = lats[i]
@@ -202,19 +285,20 @@ def main(args):
         f.write(sourcetext)
         f.close()
 
+        stationlat,stationlon,ptime,stationcode = getSlowestStation(lat,lon,calc)
+        
         grindcmd = '%s -latoff %f -lonoff %f -event %s' % (grindbin,latoff,lonoff,args.event)
         res,stdout,stderr = getCommandOutput(grindcmd)
         if not res:
             print 'Grind command failed: "%s", "%s"' % (stdout,stderr)
             sys.exit(1)
-
-        stationlat,stationlon,ptime = getSlowestStation(lat,lon,calc)
             
         #Get the grid.xml output, do some time calculations
         gridfile = os.path.join(datadir,'output','grid.xml')
         mmigrid = ShakeGrid(gridfile,variable='MMI')
         m,n = mmigrid.griddata.shape
         timegrid = np.zeros((m,n),dtype=np.float32)
+        
         for row in range(0,m):
             for col in range(0,n):
                 mmilat,mmilon = mmigrid.getLatLon(row,col)
@@ -225,19 +309,39 @@ def main(args):
                 timegrid[row,col] = stime - ptime
         
         timefile = os.path.join(outfolder,'timegrid%03i.flt' % (i+1))
+        timefiles.append(timefile)
         metadict = {'epilat':lat,'epilon':lon,'eventid':args.event}
         saveTimeGrid(timefile,timegrid,mmigrid.geodict,metadict)
-        
+    timestack = np.zeros((m,n,len(lats)),dtype=np.float32)
+    for i in range(0,len(timefiles)):
+        timefile = timefiles[i]
+        timegrid,metadata = readTimeGrid(timefile)
+        timestack[:,:,i] = timegrid
+
+    methods = config.get('MAP','output').split(',')
+    for method in methods:
+        if method == 'median':
+            statgrid = np.median(timestack,axis=2)
+        if method == 'mean':
+            statgrid = np.mean(timestack,axis=2)
+        if method == 'min':
+            statgrid = np.min(timestack,axis=2)
+        if method == 'max':
+            statgrid = np.max(timestack,axis=2)    
+        makeMap(statgrid,timegrid.geodict,metadata,method)
         
 if __name__ == '__main__':
     desc = '''This script does the following:
     1) Find ShakeMap event folder from input ID.
     2) Parse alert.conf file in event data folder (i.e. /home/shake/ShakeMap/data/eventID/alert.conf)
-    [FAULTS]
+    [FAULT]
     lats = 32.1 32.2 32.3
     lons = -118.1 -118.2 -118.3
     [MAP]
-    mmithresh = 6.0 #MMI value below which alert times will NOT be saved
+    #output can be comma separated list with any of min,mean,median,max
+    output = median 
+    #mmithresh - MMI value below which alert times will NOT be saved
+    mmithresh = 6.0 
     gmpe = AkkarBommer07
     gmice = WGRW11
     ipe = AW07_CEUS

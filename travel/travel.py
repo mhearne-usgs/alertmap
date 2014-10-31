@@ -10,6 +10,9 @@ from scipy import interpolate
 import rasterio
 from affine import Affine
 
+#local
+from neicio.gmt import GMTGrid
+
 class TravelTimeCalculator(object):
     def __init__(self):
         homedir = os.path.dirname(os.path.abspath(__file__)) #where is this script?
@@ -83,8 +86,19 @@ def readTimeGrid(timefile):
               'BANDROWBYTES','PIXELTYPE','XDIM','NROWS',
               'NBANDS','ULXMAP','ULYMAP','BYTEORDER']
     src = rasterio.open(timefile,'r',driver='EHdr')
-    timegrid, = src.read()
+    timedata, = src.read()
+    m,n = timedata.shape
+    aff = src.affine
+    xdim = aff[0]
+    xmin = aff[2]
+    ydim = aff[4]
+    ymax = aff[5]
     src.close()
+    timegrid = GMTGrid()
+    timegrid.griddata = timedata
+    timegrid.geodict = {'nrows':m,'ncols':n,'nbands':1,'bandnames':['Alert Time'],
+                    'xmin':xmin,'xmax':xmin+n*xdim,'ymin':ymax-m*ydim,'ymax':ymax}
+    
     timepath,timefile = os.path.split(timefile)
     timebase,timext = os.path.splitext(timefile)
     timehdr = os.path.join(timepath,timebase+'.hdr')
@@ -92,7 +106,8 @@ def readTimeGrid(timefile):
     for key in stkeys:
         timedict.pop(key)
     for key,value in timedict.iteritems():
-        timedict[key] = value.replace('"','')
+        if isinstance(value,str):
+            timedict[key] = value.replace('"','')
     return (timegrid,timedict)
 
 if __name__ == '__main__':

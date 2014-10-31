@@ -64,7 +64,7 @@ usage: alertmap.py [-h] event
 This script does the following:
     1) Find ShakeMap event folder from input ID.
     2) Parse alert.conf file in event data folder (i.e. /home/shake/ShakeMap/data/eventID/alert.conf)
-    [FAULTS]
+    [FAULT]
     lats = 32.1 32.2 32.3
     lons = -118.1 -118.2 -118.3
     [MAP]
