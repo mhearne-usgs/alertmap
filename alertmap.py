@@ -17,6 +17,7 @@ from obspy.core.util import locations2degrees
 from obspy.fdsn import Client
 import numpy as np
 from mpl_toolkits.basemap import Basemap
+import matplotlib.pyplot as plt
 
 
 SHAKEHOMELIST = ['/home/shake/ShakeMap','/opt/local/ShakeMap/'] #possible locations for ShakeMap installations
