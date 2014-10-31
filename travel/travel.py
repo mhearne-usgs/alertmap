@@ -97,7 +97,8 @@ def readTimeGrid(timefile):
     timegrid = GMTGrid()
     timegrid.griddata = timedata
     timegrid.geodict = {'nrows':m,'ncols':n,'nbands':1,'bandnames':['Alert Time'],
-                    'xmin':xmin,'xmax':xmin+n*xdim,'ymin':ymax-m*ydim,'ymax':ymax}
+                        'xmin':xmin,'xmax':xmin+n*xdim,'ymin':ymax-m*ydim,'ymax':ymax,
+                        'xdim':xdim,'ydim':ydim}
     
     timepath,timefile = os.path.split(timefile)
     timebase,timext = os.path.splitext(timefile)
