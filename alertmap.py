@@ -181,7 +181,7 @@ def getMapLines(dmin,dmax):
     else:
         newdmin = ceilToNearest(dmin,near)
         newdmax = floorToNearest(dmax,near)
-    darray = arange(newdmin,newdmax,inc)
+    darray = np.arange(newdmin,newdmax,inc)
     return darray
 
 def makeMap(statgrid,timegrid,metadata,method,datadir):
