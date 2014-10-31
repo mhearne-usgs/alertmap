@@ -195,7 +195,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir):
     dy = (bounds[3] - bounds[2])*111191
     aspect = dy/dx
     figheight = aspect * figwidth
-    fig = figure(figsize=(figwidth,figheight),edgecolor='g',facecolor='g')
+    fig = plt.figure(figsize=(figwidth,figheight),edgecolor='g',facecolor='g')
     ax1 = fig.add_axes([0,0,1.0,1.0])
     m = Basemap(llcrnrlon=bounds[0],llcrnrlat=bounds[2],
                 urcrnrlon=bounds[1],urcrnrlat=bounds[3],
