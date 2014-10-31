@@ -260,7 +260,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap):
 
     (lons,lats) = getLatLonGrids(timegrid)
     (x,y) = m(lons,lats)
-    clevels = np.arange(np.floor(statgrid.min()),np.ceil(statgrid.max()))
+    clevels = np.arange(5,45,5)
     cs = m.contour(x,y,statgrid,clevels)
     labels = [str(c)+' sec' for c in clevels]
     
