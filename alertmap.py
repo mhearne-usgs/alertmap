@@ -18,6 +18,7 @@ from obspy.fdsn import Client
 import numpy as np
 from mpl_toolkits.basemap import Basemap
 import matplotlib.pyplot as plt
+from neicutil.text import roundToNearest
 
 
 SHAKEHOMELIST = ['/home/shake/ShakeMap','/opt/local/ShakeMap/'] #possible locations for ShakeMap installations
