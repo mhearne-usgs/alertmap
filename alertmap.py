@@ -123,7 +123,8 @@ def getSlowestStation(lat,lon,calc):
     lons = lons[0:4]
     codes = codes[0:4]
     idx = times.argmax()
-    return (lats[idx],lons[idx],times[idx],codes[idx])
+    sdict = {'lat':lats[idx],'lon':lons[idx],'time':times[idx],'code':codes[idx]}
+    return sdict
 
 def writeGrind(config,datadir):
     gmpe = config.get('MAP','gmpe')
@@ -221,7 +222,7 @@ def getLatLonGrids(shake):
         latgrid[i,:] = latcol[i]
     return longrid,latgrid
 
-def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap):
+def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,stationdict):
     figwidth = 8.0
     bounds = timegrid.getRange()
     bounds = list(bounds)
@@ -265,7 +266,10 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap):
     #plt.clabel(cs, inline=1, fontsize=10)
     proxy = [plt.Rectangle((0,0),1,1,fc = pc.get_color()[0]) for pc in cs.collections]
     labels = [str(c)+' sec' for c in clevels]
-    
+
+    sx,sy = m(stationdict['lon'],stationdict['lat'])
+    m.plot(sx,sy,'rD')
+    m.text(sx,sy,stationdict['code'])
     
     m.drawrivers(color=WATER_COLOR)
     m.drawcountries(color='k',linewidth=2.0)
@@ -367,7 +371,8 @@ def main(args):
         f.write(sourcetext)
         f.close()
 
-        stationlat,stationlon,ptime,stationcode = getSlowestStation(lat,lon,calc)
+        sdict = getSlowestStation(lat,lon,calc)
+        ptime = sdict['time']
         
         grindcmd = '%s -latoff %f -lonoff %f -event %s' % (grindbin,latoff,lonoff,args.event)
         res,stdout,stderr = getCommandOutput(grindcmd)
@@ -387,7 +392,7 @@ def main(args):
                 if mmigrid.griddata[row,col] < mmithresh:
                     timegrid[row,col] = np.nan
                 distance = locations2degrees(stationlat,stationlon,mmilat,mmilon)
-                ptime,stime = calc.getTravelTimes(distance)
+                tmp,stime = calc.getTravelTimes(distance)
                 timegrid[row,col] = stime - ptime
         
         timefile = os.path.join(outfolder,'timegrid%03i.flt' % (i+1))
@@ -410,7 +415,7 @@ def main(args):
             statgrid = np.min(timestack,axis=2)
         if method == 'max':
             statgrid = np.max(timestack,axis=2)    
-        makeMap(statgrid,timegrid,metadata,method,outfolder,popfile,globaldict['popcolormap'])
+        makeMap(statgrid,timegrid,metadata,method,outfolder,popfile,globaldict['popcolormap'],sdict)
         
 if __name__ == '__main__':
     desc = '''This script does the following:
