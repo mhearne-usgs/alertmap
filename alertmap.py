@@ -262,7 +262,8 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap):
     (x,y) = m(lons,lats)
     clevels = np.arange(5,45,5)
     cs = m.contour(x,y,statgrid,clevels)
-    proxy = [plt.Rectangle((0,0),1,1,fc = pc.get_facecolor()[0]) for pc in cs.collections]
+    #plt.clabel(cs, inline=1, fontsize=10)
+    proxy = [plt.Rectangle((0,0),1,1,fc = pc.get_color()[0]) for pc in cs.collections]
     labels = [str(c)+' sec' for c in clevels]
     
     
