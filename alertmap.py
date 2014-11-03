@@ -232,11 +232,11 @@ def getLatLonGrids(shake):
     latcol = np.arange(ymin,ymax,ydim)
 
     if len(lonrow) < ncols:
-        lonrow = concatenate((lonrow,[xmax]))
+        lonrow = np.concatenate((lonrow,[xmax]))
     elif len(lonrow) > ncols:
         lonrow = lonrow[0:-1]
     if len(latcol) < nrows:
-        latcol = concatenate((latcol,[ymax]))
+        latcol = np.concatenate((latcol,[ymax]))
     elif len(latcol) > nrows:
         latcol = latcol[0:-1]
 
