@@ -455,7 +455,7 @@ def main(args):
         timestack[:,:,i] = timegrid.griddata
         alertgrid = mmigrid
         alertgrid.griddata = timegrid
-        makeMap(alertgrid,metadata,'alertmap_%i' % i,outfolder,popfile,globaldict['popcolormap'],sdict,citylist,[lat],[[lon])
+        makeMap(alertgrid,metadata,'alertmap_%i' % i,outfolder,popfile,globaldict['popcolormap'],sdict,citylist,[lat],[lon])
         
         
     methods = config.get('MAP','output').split(',')
