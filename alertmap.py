@@ -248,7 +248,7 @@ def getLatLonGrids(shake):
         latgrid[i,:] = latcol[i]
     return longrid,latgrid
 
-def makeMap(timegrid,metadata,method,datadir,popfile,popcolormap,stationdict,citylist,elats,elons):
+def makeMap(timegrid,method,datadir,popfile,popcolormap,stationdict,citylist,elats,elons):
     figwidth = 8.0
     bounds = timegrid.getRange()
     bounds = list(bounds)
@@ -455,7 +455,7 @@ def main(args):
         timestack[:,:,i] = timegrid
         alertgrid = mmigrid
         alertgrid.griddata = timegrid
-        makeMap(alertgrid,metadata,'alertmap_%i' % i,outfolder,popfile,globaldict['popcolormap'],sdict,citylist,[lat],[lon])
+        makeMap(alertgrid,'alertmap_%i' % i,outfolder,popfile,globaldict['popcolormap'],sdict,citylist,[lat],[lon])
         
         
     methods = config.get('MAP','output').split(',')
@@ -469,7 +469,7 @@ def main(args):
         if method == 'max':
             statgrid = np.max(timestack,axis=2)
         timegrid.griddata = statgrid
-        makeMap(timegrid,metadata,method,outfolder,popfile,globaldict['popcolormap'],sdict,citylist,lats,lons)
+        makeMap(timegrid,method,outfolder,popfile,globaldict['popcolormap'],sdict,citylist,lats,lons)
         
 if __name__ == '__main__':
     desc = '''This script does the following:
