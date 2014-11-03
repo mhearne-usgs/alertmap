@@ -402,7 +402,11 @@ def main(args):
     root.unlink()
 
     #get the dimensionality of the grid file
+    
     gridfile = os.path.join(datadir,'output','grid.xml')
+    if not os.path.isfile(gridfile):
+        grindcmd = '%s -event %s' % (grindbin,args.event)
+        res,stdout,stderr = getCommandOutput(grindcmd)
     mmigrid = ShakeGrid(gridfile,variable='MMI')
     m,n = mmigrid.griddata.shape
     
