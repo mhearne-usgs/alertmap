@@ -269,7 +269,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,statio
 
     sx,sy = m(stationdict['lon'],stationdict['lat'])
     m.plot(sx,sy,'rD')
-    m.text(sx,sy,stationdict['code'])
+    plt.text(sx,sy,stationdict['code'])
     
     m.drawrivers(color=WATER_COLOR)
     m.drawcountries(color='k',linewidth=2.0)
