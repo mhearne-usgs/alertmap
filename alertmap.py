@@ -76,7 +76,6 @@ def getCityList(xmin,xmax,ymin,ymax,cityfile):
         city = {}
         parts = line.split('\t')
         city['name'] = parts[2].strip()
-        city['ccode'] = parts[8].strip()
         city['lat'] = float(parts[4].strip())
         city['lon'] = float(parts[5].strip())
         city['pop'] = int(parts[14].strip())
