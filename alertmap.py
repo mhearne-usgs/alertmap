@@ -6,6 +6,8 @@ import sys
 import ConfigParser
 import argparse
 from xml.dom.minidom import parse
+import csv
+from operator import itemgetter
 
 #local imports
 from neicio.cmdoutput import getCommandOutput
@@ -24,6 +26,9 @@ from neicutil.colormap import GMTColormap
 from matplotlib.colors import ListedColormap,LinearSegmentedColormap,Normalize,BoundaryNorm
 
 WATER_COLOR = [.47,.60,.81]
+#CITY_COLOR = '#33FF00'
+CITY_COLOR = '#FF0000'
+NMAPCITIES = 10
 
 EVENT_DEFAULT = '''<?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
 <earthquake id="[EVENTID]" lat="[LAT]" lon="[LON]" mag="[MAG]" year="[YEAR]" month="[MONTH]" day="[DAY]" hour="[HOUR]" minute="[MINUTE]" second="[SECOND]" timezone="GMT" depth="[DEPTH]" locstring="[LOCSTR]" created="1407055672" otime="1407054613" type="" network="us" />
@@ -63,6 +68,28 @@ topobin : <HOME>/bin/topo2grd <EVID> <BOUND> regime=active
 pgm2mi: [GMICE]
 mi2pgm: [GMICE]
 '''
+
+def getCityList(xmin,xmax,ymin,ymax,cityfile):
+    cities = []
+    f = open(cityfile,'rt')
+    for line in f.readlines():
+        city = {}
+        parts = line.split('\t')
+        city['name'] = parts[2].strip()
+        city['ccode'] = parts[8].strip()
+        city['lat'] = float(parts[4].strip())
+        city['lon'] = float(parts[5].strip())
+        city['pop'] = int(parts[14].strip())
+        if not city['name']:
+            #print 'Found a city with no name'
+            continue
+        if not all(ord(c) < 128 for c in cname):
+            continue
+        if city['lat'] >= ymin and city['lat'] <= ymax and city['lon'] >= xmin and city['lon'] <= xmax:
+            cities.append(city)
+    f.close()
+    cities.sort(key=itemgetter('pop'),reverse=True)
+    return cities
 
 def getEventText(eventfile,lat,lon):
     root = parse(eventfile)
@@ -222,7 +249,7 @@ def getLatLonGrids(shake):
         latgrid[i,:] = latcol[i]
     return longrid,latgrid
 
-def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,stationdict):
+def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,stationdict,citylist):
     figwidth = 8.0
     bounds = timegrid.getRange()
     bounds = list(bounds)
@@ -270,6 +297,13 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,statio
     sx,sy = m(stationdict['lon'],stationdict['lat'])
     m.plot(sx,sy,'rD')
     plt.text(sx,sy,stationdict['code'])
+
+    #plot the cities
+    for i in range(0,NMAPCITIES):
+        city = citylist[i]
+        cx,cy = m(city['lon'],city['lat'])
+        m.plot(cx,cy,'.',color=CITY_COLOR)
+        plt.text(cx,cy,city['name'],color=CITY_COLOR)
     
     m.drawrivers(color=WATER_COLOR)
     m.drawcountries(color='k',linewidth=2.0)
@@ -302,6 +336,7 @@ def getGlobalConfig():
     gdict['shakehome'] = config.get('GLOBAL','shakehome')
     gdict['popfile'] = config.get('GLOBAL','popfile')
     gdict['popcolormap'] = config.get('GLOBAL','popcolormap')
+    gdict['cityfile'] = config.get('GLOBAL','cityfile')
     return gdict
     
 def main(args):
@@ -330,6 +365,14 @@ def main(args):
     config = ConfigParser.ConfigParser()
     config.readfp(open(configfile))
 
+    #get the bounds of the map so we can find cities
+    xmin = float(config.get('MAP','xmin'))
+    xmax = float(config.get('MAP','xmax'))
+    ymin = float(config.get('MAP','ymin'))
+    ymax = float(config.get('MAP','ymax'))
+    
+    citylist = getCityList(xmin,xmax,ymin,ymax,globaldict['cityfile'])
+    
     #Get the MMI threshold below which alert times will NOT be saved
     mmithresh = float(config.get('MAP','mmithresh'))
 
@@ -417,7 +460,7 @@ def main(args):
             statgrid = np.min(timestack,axis=2)
         if method == 'max':
             statgrid = np.max(timestack,axis=2)    
-        makeMap(statgrid,timegrid,metadata,method,outfolder,popfile,globaldict['popcolormap'],sdict)
+        makeMap(statgrid,timegrid,metadata,method,outfolder,popfile,globaldict['popcolormap'],sdict,citylist)
         
 if __name__ == '__main__':
     desc = '''This script does the following:
