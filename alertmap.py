@@ -373,6 +373,8 @@ def main(args):
 
         sdict = getSlowestStation(lat,lon,calc)
         ptime = sdict['time']
+        stationlat = sdict['lat']
+        stationlon = sdict['lon']
         
         grindcmd = '%s -latoff %f -lonoff %f -event %s' % (grindbin,latoff,lonoff,args.event)
         res,stdout,stderr = getCommandOutput(grindcmd)
