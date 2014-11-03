@@ -301,7 +301,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,statio
     #plot the various epicenters
     for elat,elon in zip(elats,elons):
         ex,ey = m(elon,elat)
-        m.plot(ex,ey,'bx')
+        m.plot(ex,ey,'kx')
 
     #plot the cities
     for i in range(0,NMAPCITIES):
