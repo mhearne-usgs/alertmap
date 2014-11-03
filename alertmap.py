@@ -285,7 +285,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,statio
     ncolors = len(boundaries)
     am = m.imshow(popdatam,cmap=palette,norm=BoundaryNorm(boundaries,ncolors),interpolation='nearest')
 
-    statgrid = statgrid.flipud(statgrid)
+    statgrid = np.flipud(statgrid)
     (lons,lats) = getLatLonGrids(timegrid)
     (x,y) = m(lons,lats)
     clevels = np.arange(5,45,5)
