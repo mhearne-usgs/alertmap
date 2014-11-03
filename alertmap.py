@@ -400,9 +400,15 @@ def main(args):
     eq = root.getElementsByTagName('earthquake')[0]
     depth = float(eq.getAttribute('depth'))
     root.unlink()
-       
+
+    #get the dimensionality of the grid file
+    gridfile = os.path.join(datadir,'output','grid.xml')
+    mmigrid = ShakeGrid(gridfile,variable='MMI')
+    m,n = mmigrid.griddata.shape
+    
     #loop over all the event realizations
     timefiles = []
+    timestack = np.zeros((m,n,len(lats)),dtype=np.float32)
     for i in range(0,len(lats)):
         print 'Calculating arrival times for scenario %i of %i' % (i+1,len(lats))
         lat = lats[i]
@@ -431,9 +437,6 @@ def main(args):
             sys.exit(1)
             
         #Get the grid.xml output, do some time calculations
-        gridfile = os.path.join(datadir,'output','grid.xml')
-        mmigrid = ShakeGrid(gridfile,variable='MMI')
-        m,n = mmigrid.griddata.shape
         timegrid = np.zeros((m,n),dtype=np.float32)
         
         for row in range(0,m):
@@ -449,12 +452,12 @@ def main(args):
         timefiles.append(timefile)
         metadict = {'epilat':lat,'epilon':lon,'eventid':args.event}
         saveTimeGrid(timefile,timegrid,mmigrid.geodict,metadict)
-    timestack = np.zeros((m,n,len(lats)),dtype=np.float32)
-    for i in range(0,len(timefiles)):
-        timefile = timefiles[i]
-        timegrid,metadata = readTimeGrid(timefile)
         timestack[:,:,i] = timegrid.griddata
-
+        alertgrid = mmigrid
+        alertgrid.griddata = timegrid
+        makeMap(alertgrid,metadata,'alertmap_%i' % i,outfolder,popfile,globaldict['popcolormap'],sdict,citylist,[lat],[[lon])
+        
+        
     methods = config.get('MAP','output').split(',')
     for method in methods:
         if method == 'median':
