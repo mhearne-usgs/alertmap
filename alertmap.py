@@ -468,6 +468,7 @@ def main(args):
             statgrid = np.min(timestack,axis=2)
         if method == 'max':
             statgrid = np.max(timestack,axis=2)
+        timegrid = mmigrid
         timegrid.griddata = statgrid
         makeMap(timegrid,method,outfolder,popfile,globaldict['popcolormap'],sdict,citylist,lats,lons)
         
