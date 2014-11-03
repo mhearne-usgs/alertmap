@@ -248,7 +248,7 @@ def getLatLonGrids(shake):
         latgrid[i,:] = latcol[i]
     return longrid,latgrid
 
-def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,stationdict,citylist):
+def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,stationdict,citylist,lats,lons):
     figwidth = 8.0
     bounds = timegrid.getRange()
     bounds = list(bounds)
@@ -297,6 +297,11 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,statio
     sx,sy = m(stationdict['lon'],stationdict['lat'])
     m.plot(sx,sy,'rD')
     plt.text(sx,sy,stationdict['code'])
+
+    #plot the various epicenters
+    for elat,elon in zip(lats,lons):
+        ex,ey = m(elon,elat)
+        m.plot(ex,ey,'bx')
 
     #plot the cities
     for i in range(0,NMAPCITIES):
@@ -460,7 +465,7 @@ def main(args):
             statgrid = np.min(timestack,axis=2)
         if method == 'max':
             statgrid = np.max(timestack,axis=2)    
-        makeMap(statgrid,timegrid,metadata,method,outfolder,popfile,globaldict['popcolormap'],sdict,citylist)
+        makeMap(statgrid,timegrid,metadata,method,outfolder,popfile,globaldict['popcolormap'],sdict,citylist,lats,lons)
         
 if __name__ == '__main__':
     desc = '''This script does the following:
