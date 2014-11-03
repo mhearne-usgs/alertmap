@@ -82,7 +82,7 @@ def getCityList(xmin,xmax,ymin,ymax,cityfile):
         if not city['name']:
             #print 'Found a city with no name'
             continue
-        if not all(ord(c) < 128 for c in cname):
+        if not all(ord(c) < 128 for c in city['name']):
             continue
         if city['lat'] >= ymin and city['lat'] <= ymax and city['lon'] >= xmin and city['lon'] <= xmax:
             cities.append(city)
