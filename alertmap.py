@@ -248,7 +248,7 @@ def getLatLonGrids(shake):
         latgrid[i,:] = latcol[i]
     return longrid,latgrid
 
-def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,stationdict,citylist,lats,lons):
+def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,stationdict,citylist,elats,elons):
     figwidth = 8.0
     bounds = timegrid.getRange()
     bounds = list(bounds)
@@ -299,7 +299,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,statio
     plt.text(sx,sy,stationdict['code'])
 
     #plot the various epicenters
-    for elat,elon in zip(lats,lons):
+    for elat,elon in zip(elats,elons):
         ex,ey = m(elon,elat)
         m.plot(ex,ey,'bx')
 
