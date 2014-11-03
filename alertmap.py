@@ -330,6 +330,7 @@ def makeMap(timegrid,method,datadir,popfile,popcolormap,stationdict,citylist,ela
     
     outfile = os.path.join(datadir,method+'.pdf')
     plt.savefig(outfile)
+    plt.close()
 
 def getGlobalConfig():
     configfile = os.path.join(os.path.expanduser('~'),'.alertmap','config.ini')
