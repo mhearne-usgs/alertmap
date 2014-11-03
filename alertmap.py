@@ -270,7 +270,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,statio
     #get the population grid
     popgrid = EsriGrid(popfile)
     popgrid.load(bounds=bounds)
-    popdata = popgrid.griddata
+    popdata = np.flipud(popgrid.griddata)
 
     cmap = GMTColormap(popcolormap)
     clist = cmap.getColorList()
@@ -285,6 +285,7 @@ def makeMap(statgrid,timegrid,metadata,method,datadir,popfile,popcolormap,statio
     ncolors = len(boundaries)
     am = m.imshow(popdatam,cmap=palette,norm=BoundaryNorm(boundaries,ncolors),interpolation='nearest')
 
+    statgrid = statgrid.flipud(statgrid)
     (lons,lats) = getLatLonGrids(timegrid)
     (x,y) = m(lons,lats)
     clevels = np.arange(5,45,5)
