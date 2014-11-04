@@ -101,7 +101,7 @@ def getCityList(xmin,xmax,ymin,ymax,cityfile):
             binbounds = binlist[0]
             bincount = binlist[1]
             if clon >= binbounds[0] and clon <= binbounds[1] and clat >= binbounds[2] and clat <= binbounds[3]:
-                if bincount > MAX_CITIES_PER_QUARTER:
+                if bincount >= MAX_CITIES_PER_QUARTER:
                     continue
                 bins[binkey][1] += 1
                 citylist.append(city)
