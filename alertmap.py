@@ -82,10 +82,7 @@ def getCityList(xmin,xmax,ymin,ymax,cityfile):
             bxmax = xmin+((j+1)*dx)
             bymin = ymin+(i*dy)
             bymax = ymin+((i+1)*dy)
-            try:
-                bins.append([(bxmin,bxmax,bymin,bymax),0])
-            except:
-                pass
+            bins.append([(bxmin,bxmax,bymin,bymax),0])
 
     f = open(cityfile,'rt')
     for line in f.readlines():
@@ -116,8 +113,8 @@ def getCityList(xmin,xmax,ymin,ymax,cityfile):
                     continue
                 bins[i][1] += 1
                 citylist.append(city)
-        binfilled = [b[1] == MAX_CITIES_PER_BLOCK for b in bins.values()]
-        bincounts = [b[1] for b in bins.values()]
+        binfilled = [b[1] == MAX_CITIES_PER_BLOCK for b in bins]
+        bincounts = [b[1] for b in bins]
         if all(binfilled):
             break
         
