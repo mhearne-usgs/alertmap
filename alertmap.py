@@ -473,6 +473,7 @@ def main(args):
             sys.exit(1)
             
         #Get the grid.xml output, do some time calculations
+        mmigrid = ShakeGrid(gridfile,variable='MMI')
         timegrid = np.zeros((m,n),dtype=np.float32)
         
         for row in range(0,m):
