@@ -89,8 +89,8 @@ def getCityList(xmin,xmax,ymin,ymax,cityfile):
             continue
         if not all(ord(c) < 128 for c in city['name']):
             continue
-    if city['lat'] >= ymin and city['lat'] <= ymax and city['lon'] >= xmin and city['lon'] <= xmax:
-        cities.append(city)
+        if city['lat'] >= ymin and city['lat'] <= ymax and city['lon'] >= xmin and city['lon'] <= xmax:
+            cities.append(city)
 
     cities.sort(key=itemgetter('pop'),reverse=True)
     citylist = []
