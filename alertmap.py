@@ -107,7 +107,7 @@ def getCityList(xmin,xmax,ymin,ymax,cityfile):
                 citylist.append(city)
         binfilled = [b[1] == MAX_CITIES_PER_QUARTER for b in bins.values()]
         bincounts = [b[1] for b in bins.values()]
-        if all(bincounts):
+        if all(binfilled):
             break
         
     f.close()
