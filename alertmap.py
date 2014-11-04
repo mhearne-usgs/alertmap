@@ -8,6 +8,7 @@ import argparse
 from xml.dom.minidom import parse
 import csv
 from operator import itemgetter
+import json
 
 #local imports
 from neicio.cmdoutput import getCommandOutput
@@ -29,6 +30,9 @@ WATER_COLOR = [.47,.60,.81]
 #CITY_COLOR = '#33FF00'
 CITY_COLOR = '#FF0000'
 MAX_CITIES_PER_BLOCK = 1
+MINTIME = 5
+MAXTIME = 40
+DTIME = 5
 
 EVENT_DEFAULT = '''<?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
 <earthquake id="[EVENTID]" lat="[LAT]" lon="[LON]" mag="[MAG]" year="[YEAR]" month="[MONTH]" day="[DAY]" hour="[HOUR]" minute="[MINUTE]" second="[SECOND]" timezone="GMT" depth="[DEPTH]" locstring="[LOCSTR]" created="1407055672" otime="1407054613" type="" network="us" />
@@ -68,6 +72,23 @@ topobin : <HOME>/bin/topo2grd <EVID> <BOUND> regime=active
 pgm2mi: [GMICE]
 mi2pgm: [GMICE]
 '''
+
+def getTimeExposure(timegriddata,mmigrid,popfile):
+    timegrid = mmigrid
+    timegrid.griddata = timegriddata
+    popgrid = EsriGrid(popfile)
+    popgrid.load(bounds=timegrid.getRange())
+    timegrid.interpolateToGrid(popgrid)
+    mmigrid.interpolateToGrid(popgrid)
+    times = np.arange(MINTIME,MAXTIME+DTIME,DTIME)
+    exposure = []
+    mintime = 0
+    for time in times:
+        ipop = ((timegrid.griddata >= mintime) & (timegrid.griddata < time))
+        exposum = np.sum(popgrid.griddata[ipop])
+        exposure.append({'mintime':mintime,'maxtime':time,'exposure':exposure})
+
+    return exposure
 
 def getCityList(xmin,xmax,ymin,ymax,cityfile):
     cities = []
@@ -320,7 +341,7 @@ def makeMap(timegrid,method,datadir,popfile,popcolormap,stationdict,citylist,ela
     statgrid = np.flipud(timegrid.griddata)
     (lons,lats) = getLatLonGrids(timegrid)
     (x,y) = m(lons,lats)
-    clevels = np.arange(5,45,5)
+    clevels = np.arange(MINTIME,MAXTIME+DTIME,DTIME)
     cs = m.contour(x,y,statgrid,clevels)
     #plt.clabel(cs, inline=1, fontsize=10)
     proxy = [plt.Rectangle((0,0),1,1,fc = pc.get_color()[0]) for pc in cs.collections]
@@ -484,7 +505,12 @@ def main(args):
                 distance = locations2degrees(stationlat,stationlon,mmilat,mmilon)
                 tmp,stime = calc.getTravelTimes(distance)
                 timegrid[row,col] = stime - ptime
-        
+
+        exposure = getTimeExposure(timegrid,mmigrid,popfile)
+        expofile = os.path.join(outfolder,'expo%03i.json' % (i+1))
+        f = open(expofile,'wt')
+        f.write(json.dumps(exposure))
+        f.close()
         timefile = os.path.join(outfolder,'timegrid%03i.flt' % (i+1))
         timefiles.append(timefile)
         metadict = {'epilat':lat,'epilon':lon,'eventid':args.event}
