@@ -327,8 +327,7 @@ def makeMap(timegrid,method,datadir,popfile,popcolormap,stationdict,citylist,ela
         m.plot(ex,ey,'k*')
 
     #plot the cities
-    for i in range(0,NMAPCITIES):
-        city = citylist[i]
+    for city in citylist:
         cx,cy = m(city['lon'],city['lat'])
         m.plot(cx,cy,'.',color=CITY_COLOR)
         plt.text(cx,cy,city['name'],color=CITY_COLOR)
