@@ -76,13 +76,10 @@ mi2pgm: [GMICE]
 def getTimeExposure(timegriddata,mmigrid,popfile):
     timegrid = mmigrid
     mmigrid2 = mmigrid
-    mmigrid2.griddata = mmigrid2.griddata.copy()
-    mmigrid2.geodict = mmigrid2.geodict.copy()    
     timegrid.griddata = timegriddata.copy()
     popgrid = EsriGrid(popfile)
     popgrid.load(bounds=timegrid.getRange())
     timegrid.interpolateToGrid(popgrid.geodict)
-    mmigrid.interpolateToGrid(popgrid.geodict)
     times = np.arange(MINTIME,MAXTIME+DTIME,DTIME)
     exposure = []
     mintime = 0
