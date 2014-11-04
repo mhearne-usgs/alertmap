@@ -86,7 +86,7 @@ def getTimeExposure(timegriddata,mmigrid,popfile):
     for time in times:
         ipop = ((timegrid.griddata >= mintime) & (timegrid.griddata < time))
         exposum = np.sum(popgrid.griddata[ipop])
-        exposure.append({'mintime':mintime,'maxtime':time,'exposure':exposure})
+        exposure.append({'mintime':mintime,'maxtime':time,'exposure':exposum})
 
     return exposure
 
