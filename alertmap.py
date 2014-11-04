@@ -28,7 +28,7 @@ from matplotlib.colors import ListedColormap,LinearSegmentedColormap,Normalize,B
 WATER_COLOR = [.47,.60,.81]
 #CITY_COLOR = '#33FF00'
 CITY_COLOR = '#FF0000'
-NMAPCITIES = 10
+MAX_CITIES_PER_QUARTER = 1
 
 EVENT_DEFAULT = '''<?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
 <earthquake id="[EVENTID]" lat="[LAT]" lon="[LON]" mag="[MAG]" year="[YEAR]" month="[MONTH]" day="[DAY]" hour="[HOUR]" minute="[MINUTE]" second="[SECOND]" timezone="GMT" depth="[DEPTH]" locstring="[LOCSTR]" created="1407055672" otime="1407054613" type="" network="us" />
@@ -71,6 +71,11 @@ mi2pgm: [GMICE]
 
 def getCityList(xmin,xmax,ymin,ymax,cityfile):
     cities = []
+    ll = (xmin,xmin+(xmax-xmin)/2.0,ymin,ymin+(ymax-ymin)/2.0)
+    ul = (xmin,xmin+(xmax-xmin)/2.0,ymin+(ymax-ymin)/2.0,ymax)
+    lr = (xmin+(xmax-xmin)/2.0,xmax,ymin,ymin+(ymax-ymin)/2.0)
+    ur = (xmin+(xmax-xmin)/2.0,xmax,ymin+(ymax-ymin)/2.0,ymax)
+    bins = {'ll':[ll,0],'ul':[ul,0],'lr':[lr,0],'ur':[ur,0]}
     f = open(cityfile,'rt')
     for line in f.readlines():
         city = {}
@@ -84,11 +89,29 @@ def getCityList(xmin,xmax,ymin,ymax,cityfile):
             continue
         if not all(ord(c) < 128 for c in city['name']):
             continue
-        if city['lat'] >= ymin and city['lat'] <= ymax and city['lon'] >= xmin and city['lon'] <= xmax:
-            cities.append(city)
-    f.close()
+    if city['lat'] >= ymin and city['lat'] <= ymax and city['lon'] >= xmin and city['lon'] <= xmax:
+        cities.append(city)
+
     cities.sort(key=itemgetter('pop'),reverse=True)
-    return cities
+    citylist = []
+    for city in cities:
+        for binkey,binlist in bins.iteritems():
+            clat = city['lat']
+            clon = city['lon']
+            binbounds = binlist[0]
+            bincount = binlist[1]
+            if clon >= binbounds[0] and clon <= binbounds[1] and clat >= binbounds[2] and clat <= binbounds[3]:
+                if bincount > MAX_CITIES_PER_QUARTER:
+                    continue
+                bincount += 1
+                citylist.append(city)
+        bincounts = [b[1] == MAX_CITIES_PER_QUARTER for b in bins.values()]
+        if all(bincounts):
+            break
+        
+    f.close()
+    
+    return citylist
 
 def getEventText(eventfile,lat,lon):
     root = parse(eventfile)
