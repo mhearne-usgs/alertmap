@@ -81,7 +81,7 @@ def getCityList(xmin,xmax,ymin,ymax,cityfile):
             bxmin = xmin+(j*dx)
             bxmax = xmin+((j+1)*dx)
             bymin = ymin+(i*dy)
-            bymax = ymax+((i+1)*dy)
+            bymax = ymin+((i+1)*dy)
             bins.append([(bxmin,bxmax,bymin,bymax),0])
 
     f = open(cityfile,'rt')
