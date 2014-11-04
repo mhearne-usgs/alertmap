@@ -78,8 +78,8 @@ def getTimeExposure(timegriddata,mmigrid,popfile):
     timegrid.griddata = timegriddata
     popgrid = EsriGrid(popfile)
     popgrid.load(bounds=timegrid.getRange())
-    timegrid.interpolateToGrid(popgrid)
-    mmigrid.interpolateToGrid(popgrid)
+    timegrid.interpolateToGrid(popgrid.geodict)
+    mmigrid.interpolateToGrid(popgrid.geodict)
     times = np.arange(MINTIME,MAXTIME+DTIME,DTIME)
     exposure = []
     mintime = 0
