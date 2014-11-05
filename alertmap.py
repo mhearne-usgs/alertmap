@@ -17,6 +17,7 @@ from neicio.shake import ShakeGrid
 from neicio.esri import EsriGrid
 from neicio.gmt import GMTGrid
 from travel.travel import TravelTimeCalculator,saveTimeGrid,readTimeGrid
+from neicutil.text import commify
 
 #third party imports
 from obspy.core.util import locations2degrees
@@ -74,6 +75,11 @@ topobin : <HOME>/bin/topo2grd <EVID> <BOUND> regime=active
 pgm2mi: [GMICE]
 mi2pgm: [GMICE]
 '''
+
+def printExposure(exposure):
+    for expbin in exposure:
+        tpl = (expbin['mintime'],expbin['maxtime'],commify(expbin['exposure'])
+        print '\t%2i - %2i seconds: %s' % tpl
 
 def getTimeExposure(timegriddata,geodict,popfile):
     timegrid = GMTGrid()
@@ -509,9 +515,8 @@ def main(args):
                 timegrid[row,col] = stime - ptime
 
         exposure = getTimeExposure(timegrid,mmigrid.geodict,popfile)
-        pp = pprint.PrettyPrinter(indent=4)
         print 'Population Warning Times for epicenter %.4f,%.4f' % (lat,lon)
-        pp.pprint(exposure)
+        printExposure(exposure)
         expofile = os.path.join(outfolder,'expo%03i.json' % (i+1))
         f = open(expofile,'wt')
         f.write(json.dumps(exposure))
