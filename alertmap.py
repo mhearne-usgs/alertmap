@@ -78,7 +78,7 @@ mi2pgm: [GMICE]
 
 def printExposure(exposure):
     for expbin in exposure:
-        tpl = (expbin['mintime'],expbin['maxtime'],commify(expbin['exposure'])
+        tpl = (expbin['mintime'],expbin['maxtime'],commify(expbin['exposure']))
         print '\t%2i - %2i seconds: %s' % tpl
 
 def getTimeExposure(timegriddata,geodict,popfile):
