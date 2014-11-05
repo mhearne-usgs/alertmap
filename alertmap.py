@@ -9,6 +9,7 @@ from xml.dom.minidom import parse
 import csv
 from operator import itemgetter
 import json
+import pprint
 
 #local imports
 from neicio.cmdoutput import getCommandOutput
@@ -508,6 +509,9 @@ def main(args):
                 timegrid[row,col] = stime - ptime
 
         exposure = getTimeExposure(timegrid,mmigrid.geodict,popfile)
+        pp = pprint.PrettyPrinter(indent=4)
+        print 'Population Warning Times for epicenter %.4f,%.4f' % (lat,lon)
+        pp.pprint(exposure)
         expofile = os.path.join(outfolder,'expo%03i.json' % (i+1))
         f = open(expofile,'wt')
         f.write(json.dumps(exposure))
