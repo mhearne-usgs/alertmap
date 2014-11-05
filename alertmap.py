@@ -75,8 +75,8 @@ mi2pgm: [GMICE]
 
 def getTimeExposure(timegriddata,mmigrid,popfile):
     timegrid = mmigrid
-    mmigrid2 = mmigrid
     timegrid.griddata = timegriddata.copy()
+    timegrid.geodict = mmigrid.geodict.copy()
     popgrid = EsriGrid(popfile)
     popgrid.load(bounds=timegrid.getRange())
     timegrid.interpolateToGrid(popgrid.geodict)
