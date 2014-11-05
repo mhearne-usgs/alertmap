@@ -14,6 +14,7 @@ import json
 from neicio.cmdoutput import getCommandOutput
 from neicio.shake import ShakeGrid
 from neicio.esri import EsriGrid
+from neicio.gmt import GMTGrid
 from travel.travel import TravelTimeCalculator,saveTimeGrid,readTimeGrid
 
 #third party imports
@@ -73,10 +74,10 @@ pgm2mi: [GMICE]
 mi2pgm: [GMICE]
 '''
 
-def getTimeExposure(timegriddata,mmigrid,popfile):
-    timegrid = mmigrid
+def getTimeExposure(timegriddata,geodict,popfile):
+    timegrid = GMTGrid()
     timegrid.griddata = timegriddata.copy()
-    timegrid.geodict = mmigrid.geodict.copy()
+    timegrid.geodict = geodict.copy()
     popgrid = EsriGrid(popfile)
     popgrid.load(bounds=timegrid.getRange())
     timegrid.interpolateToGrid(popgrid.geodict)
@@ -506,7 +507,7 @@ def main(args):
                 tmp,stime = calc.getTravelTimes(distance)
                 timegrid[row,col] = stime - ptime
 
-        exposure = getTimeExposure(timegrid,mmigrid,popfile)
+        exposure = getTimeExposure(timegrid,mmigrid.geodict,popfile)
         expofile = os.path.join(outfolder,'expo%03i.json' % (i+1))
         f = open(expofile,'wt')
         f.write(json.dumps(exposure))
