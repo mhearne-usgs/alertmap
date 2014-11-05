@@ -95,7 +95,7 @@ def getTimeExposure(timegriddata,geodict,popfile):
         ipop = ((timegrid.griddata >= mintime) & (timegrid.griddata < time))
         exposum = int(np.sum(popgrid.griddata[ipop]))
         exposure.append({'mintime':mintime,'maxtime':time,'exposure':exposum})
-
+        mintime = time
     return exposure
 
 def getCityList(xmin,xmax,ymin,ymax,cityfile):
