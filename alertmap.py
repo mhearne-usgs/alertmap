@@ -10,6 +10,7 @@ import csv
 from operator import itemgetter
 import json
 import pprint
+import warnings
 
 #local imports
 from neicio.cmdoutput import getCommandOutput
@@ -98,8 +99,9 @@ def getTimeExposure(timegriddata,geodict,popfile):
     exposure = []
     mintime = 0
     for time in times:
-        ireal = np.isfinite(timegrid.griddata)
-        ipop = ((timegrid.griddata[ireal] >= mintime) & (timegrid.griddata[ireal] < time))
+        #ireal = np.isfinite(timegrid.griddata)
+        #ipop = ((timegrid.griddata[ireal] >= mintime) & (timegrid.griddata[ireal] < time))
+        ipop = ((timegrid.griddata >= mintime) & (timegrid.griddata < time))
         exposum = int(np.sum(popgrid.griddata[ipop]))
         exposure.append({'mintime':mintime,'maxtime':time,'exposure':exposum})
         mintime = time
@@ -532,8 +534,10 @@ def main(args):
         plt.colorbar()
         plt.savefig(os.path.join(outfolder,'timegrid.png'))
         plt.close(f)
-        
-        exposure = getTimeExposure(timegrid,mmigrid.geodict,popfile)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            exposure = getTimeExposure(timegrid,mmigrid.geodict,popfile)
         print 'Population Warning Times for epicenter %.4f,%.4f' % (lat,lon)
         printExposure(exposure)
         expofile = os.path.join(outfolder,'expo%03i.json' % (i+1))
