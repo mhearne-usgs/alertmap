@@ -98,9 +98,9 @@ def getTimeExposure(timegriddata,mmigrid,popfile,mmithresh):
     timegrid.griddata[mmigrid.griddata < mmithresh] = np.NaN
     times = np.arange(MINTIME,MAXTIME+DTIME,DTIME)
     exposure = []
-    mintime = MINTIME - DTIME
+    mintime = MINTIME
     ireal = np.isfinite(timegrid.griddata)
-    for time in times:
+    for time in times[1:]:
         ipop = ((timegrid.griddata >= mintime) & (timegrid.griddata < time) & np.isfinite(timegrid.griddata))
         exposum = int(np.sum(popgrid.griddata[ipop]))
         exposure.append({'mintime':mintime,'maxtime':time,'exposure':exposum})
