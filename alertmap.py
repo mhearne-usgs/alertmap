@@ -88,20 +88,20 @@ def printExposure(exposure):
         tpl = (expbin['mintime'],expbin['maxtime'],commify(expbin['exposure']))
         print '\t%2i - %2i seconds: %s' % tpl
 
-def getTimeExposure(timegriddata,geodict,popfile):
+def getTimeExposure(timegriddata,mmigrid,popfile,mmithresh):
     timegrid = GMTGrid()
     timegrid.griddata = timegriddata.copy()
-    timegrid.geodict = geodict.copy()
+    timegrid.geodict = mmigrid.geodict.copy()
     popgrid = EsriGrid(popfile)
     popgrid.load(bounds=timegrid.getRange())
     timegrid.interpolateToGrid(popgrid.geodict)
+    timegrid.griddata[mmigrid.griddata < mmithresh] = np.NaN
     times = np.arange(MINTIME,MAXTIME+DTIME,DTIME)
     exposure = []
     mintime = 0
     for time in times:
         ireal = np.isfinite(timegrid.griddata)
         ipop = ((timegrid.griddata[ireal] >= mintime) & (timegrid.griddata[ireal] < time))
-        #ipop = ((timegrid.griddata >= mintime) & (timegrid.griddata < time))
         exposum = int(np.sum(popgrid.griddata[ipop]))
         exposure.append({'mintime':mintime,'maxtime':time,'exposure':exposum})
         mintime = time
@@ -517,9 +517,6 @@ def main(args):
         for row in range(0,m):
             for col in range(0,n):
                 mmilat,mmilon = mmigrid.getLatLon(row,col)
-                if mmigrid.griddata[row,col] < mmithresh:
-                    timegrid[row,col] = np.nan
-                    continue
                 distance = locations2degrees(lat,lon,mmilat,mmilon)
                 tmp,stime = calc.getTravelTimes(distance,depth)
                 timegrid[row,col] = stime - ptime
@@ -537,7 +534,7 @@ def main(args):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            exposure = getTimeExposure(timegrid,mmigrid.geodict,popfile)
+            exposure = getTimeExposure(timegrid,mmigrid,popfile)
         print 'Population Warning Times for epicenter %.4f,%.4f' % (lat,lon)
         printExposure(exposure)
         expofile = os.path.join(outfolder,'expo%03i.json' % (i+1))
