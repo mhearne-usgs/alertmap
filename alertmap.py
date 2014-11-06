@@ -516,6 +516,7 @@ def main(args):
                 mmilat,mmilon = mmigrid.getLatLon(row,col)
                 if mmigrid.griddata[row,col] < mmithresh:
                     timegrid[row,col] = np.nan
+                    continue
                 distance = locations2degrees(lat,lon,mmilat,mmilon)
                 tmp,stime = calc.getTravelTimes2(distance,depth)
                 timegrid[row,col] = stime - ptime
