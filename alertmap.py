@@ -527,7 +527,7 @@ def main(args):
         plt.imshow(timegrid)
         plt.colorbar()
         plt.savefig('timegrid.png')
-        f.close()
+        plt.close(f)
         
         exposure = getTimeExposure(timegrid,mmigrid.geodict,popfile)
         print 'Population Warning Times for epicenter %.4f,%.4f' % (lat,lon)
