@@ -100,7 +100,7 @@ def getTimeExposure(timegriddata,geodict,popfile):
     for time in times:
         ireal = np.isfinite(timegrid.griddata)
         ipop = ((timegrid.griddata[ireal] >= mintime) & (timegrid.griddata[ireal] < time))
-        exposum = int(np.sum(popgrid.griddata[ipop]))
+p time        exposum = int(np.sum(popgrid.griddata[ipop]))
         exposure.append({'mintime':mintime,'maxtime':time,'exposure':exposum})
         mintime = time
     return exposure
@@ -522,6 +522,12 @@ def main(args):
                 tmp,stime = calc.getTravelTimes2(distance,depth)
                 timegrid[row,col] = stime - ptime
 
+        #debugging
+        f = plt.figure()
+        plt.imshow(timegrid)
+        plt.savefig('timegrid.png')
+        f.close()
+        
         exposure = getTimeExposure(timegrid,mmigrid.geodict,popfile)
         print 'Population Warning Times for epicenter %.4f,%.4f' % (lat,lon)
         printExposure(exposure)
