@@ -525,6 +525,7 @@ def main(args):
         #debugging
         f = plt.figure()
         plt.imshow(timegrid)
+        plt.colorbar()
         plt.savefig('timegrid.png')
         f.close()
         
