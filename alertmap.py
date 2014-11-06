@@ -562,7 +562,7 @@ def main(args):
             statgrid = np.nanmin(timestack,axis=2)
         if method == 'max':
             statgrid = np.nanmax(timestack,axis=2)
-        timegrid = mmigrid
+        timegrid = popgrid
         timegrid.griddata = statgrid
         makeMap(timegrid,method,outfolder,popfile,globaldict['popcolormap'],sdict,citylist,lats,lons)
         
