@@ -471,14 +471,15 @@ def main(args):
     depth = float(eq.getAttribute('depth'))
     root.unlink()
 
-    #get the dimensionality of the grid file
-    
+    #get the dimensionality of the grid file and of the pop grid we'll interpolate to
     gridfile = os.path.join(datadir,'output','grid.xml')
     if not os.path.isfile(gridfile):
         grindcmd = '%s -event %s' % (grindbin,args.event)
         res,stdout,stderr = getCommandOutput(grindcmd)
     mmigrid = ShakeGrid(gridfile,variable='MMI')
-    m,n = mmigrid.griddata.shape
+    popgrid = EsriGrid(popfile)
+    popgrid.load(bounds=mmigrid.getRange())
+    m,n = popgrid.griddata.shape
     
     #loop over all the event realizations
     timefiles = []
