@@ -98,7 +98,8 @@ def getTimeExposure(timegriddata,geodict,popfile):
     exposure = []
     mintime = 0
     for time in times:
-        ipop = ((timegrid.griddata >= mintime) & (timegrid.griddata < time))
+        ireal = np.isfinite(timegrid.griddata)
+        ipop = ((timegrid.griddata[ireal] >= mintime) & (timegrid.griddata[ireal] < time))
         exposum = int(np.sum(popgrid.griddata[ipop]))
         exposure.append({'mintime':mintime,'maxtime':time,'exposure':exposum})
         mintime = time
