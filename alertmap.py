@@ -37,6 +37,12 @@ MINTIME = 5
 MAXTIME = 40
 DTIME = 5
 
+TELEMETRY_DELAY = 4.5
+PROCESSING_DELAY = 4.0
+
+TIMEFMT = '%Y-%m-%dT%H:%M:%S'
+DATEFMT = '%Y-%m-%d'
+
 EVENT_DEFAULT = '''<?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
 <earthquake id="[EVENTID]" lat="[LAT]" lon="[LON]" mag="[MAG]" year="[YEAR]" month="[MONTH]" day="[DAY]" hour="[HOUR]" minute="[MINUTE]" second="[SECOND]" timezone="GMT" depth="[DEPTH]" locstring="[LOCSTR]" created="1407055672" otime="1407054613" type="" network="us" />
 '''
@@ -173,7 +179,7 @@ def getEventText(eventfile,lat,lon):
         eventtext = eventtext.replace('['+key.upper()+']',str(value))
     return eventtext
     
-def getSlowestStation(lat,lon,calc):
+def getSlowestStation(lat,lon,depth,calc):
     client = Client("IRIS")
     inventory = client.get_stations(latitude=lat, longitude=lon,maxradius=1.5)
     lats = []
@@ -194,7 +200,7 @@ def getSlowestStation(lat,lon,calc):
         slon = lons[i]
         distance = locations2degrees(lat,lon,slat,slon)
         distances.append(distance)
-        ptime,stime = calc.getTravelTimes(distance)
+        ptime,stime = calc.getTravelTimes2(distance,depth)
         times.append(ptime)
     times = np.array(times)
     distances = np.array(distances)
@@ -205,7 +211,7 @@ def getSlowestStation(lat,lon,calc):
     lons = lons[sortidx]
     codes = codes[sortidx]
     distances = distances[0:4]
-    times = times[0:4]
+    times = times[0:4] + TELEMETRY_DELAY + PROCESSING_DELAY
     lats = lats[0:4]
     lons = lons[0:4]
     codes = codes[0:4]
@@ -490,7 +496,7 @@ def main(args):
         f.write(sourcetext)
         f.close()
 
-        sdict = getSlowestStation(lat,lon,calc)
+        sdict = getSlowestStation(lat,lon,depth,calc)
         ptime = sdict['time']
         stationlat = sdict['lat']
         stationlon = sdict['lon']
@@ -510,8 +516,8 @@ def main(args):
                 mmilat,mmilon = mmigrid.getLatLon(row,col)
                 if mmigrid.griddata[row,col] < mmithresh:
                     timegrid[row,col] = np.nan
-                distance = locations2degrees(stationlat,stationlon,mmilat,mmilon)
-                tmp,stime = calc.getTravelTimes(distance)
+                distance = locations2degrees(lat,lon,mmilat,mmilon)
+                tmp,stime = calc.getTravelTimes2(distance,depth)
                 timegrid[row,col] = stime - ptime
 
         exposure = getTimeExposure(timegrid,mmigrid.geodict,popfile)

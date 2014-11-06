@@ -9,6 +9,7 @@ import numpy as np
 from scipy import interpolate
 import rasterio
 from affine import Affine
+from obspy.taup import taup
 
 #local
 from neicio.gmt import GMTGrid
@@ -25,6 +26,18 @@ class TravelTimeCalculator(object):
         ptime = self.fp(distance)
         stime = self.fs(distance)
         return (ptime,stime)
+
+    def getTravelTimes2(self,distance,depth):
+        tt = taup.getTravelTimes(delta=1.5, depth=13.0, model='ak135')
+        ptimes = []
+        stimes = []
+        for time in tt:
+            if time['phase_name'].startswith('P'):
+                ptimes.append(time['time'])
+            if time['phase_name'].startswith('S'):
+                stimes.append(time['time'])
+        return (min(ptimes),min(stimes))
+                              
 
 def readTimeHeader(timehdr):
     lines = open(timehdr,'rt').readlines()
