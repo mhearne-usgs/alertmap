@@ -524,9 +524,13 @@ def main(args):
 
         #debugging
         f = plt.figure()
+        plt.subplot(2,1,1)
+        plt.imshow(mmigrid)
+        plt.colorbar()
+        plt.subplot(2,1,2)
         plt.imshow(timegrid)
         plt.colorbar()
-        plt.savefig('timegrid.png')
+        plt.savefig(os.path.join(outfolder,'timegrid.png'))
         plt.close(f)
         
         exposure = getTimeExposure(timegrid,mmigrid.geodict,popfile)
