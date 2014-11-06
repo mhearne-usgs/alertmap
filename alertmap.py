@@ -105,7 +105,7 @@ def getTimeExposure(timegriddata,mmigrid,popfile,mmithresh):
         exposum = int(np.sum(popgrid.griddata[ipop]))
         exposure.append({'mintime':mintime,'maxtime':time,'exposure':exposum})
         mintime = time
-    return exposure
+    return (exposure,timegrid.griddata)
 
 def getCityList(xmin,xmax,ymin,ymax,cityfile):
     cities = []
@@ -534,7 +534,7 @@ def main(args):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            exposure = getTimeExposure(timegrid,mmigrid,popfile,mmithresh)
+            exposure,timegrid = getTimeExposure(timegrid,mmigrid,popfile,mmithresh)
         print 'Population Warning Times for epicenter %.4f,%.4f' % (lat,lon)
         printExposure(exposure)
         expofile = os.path.join(outfolder,'expo%03i.json' % (i+1))
@@ -556,11 +556,11 @@ def main(args):
         if method == 'median':
             statgrid = np.median(timestack,axis=2)
         if method == 'mean':
-            statgrid = np.mean(timestack,axis=2)
+            statgrid = np.nanmean(timestack,axis=2)
         if method == 'min':
-            statgrid = np.min(timestack,axis=2)
+            statgrid = np.nanmin(timestack,axis=2)
         if method == 'max':
-            statgrid = np.max(timestack,axis=2)
+            statgrid = np.nanmax(timestack,axis=2)
         timegrid = mmigrid
         timegrid.griddata = statgrid
         makeMap(timegrid,method,outfolder,popfile,globaldict['popcolormap'],sdict,citylist,lats,lons)
