@@ -525,7 +525,7 @@ def main(args):
         #debugging
         f = plt.figure()
         plt.subplot(2,1,1)
-        plt.imshow(mmigrid)
+        plt.imshow(mmigrid.griddata)
         plt.colorbar()
         plt.subplot(2,1,2)
         plt.imshow(timegrid)
