@@ -547,7 +547,7 @@ def main(args):
         metadict = {'epilat':lat,'epilon':lon,'eventid':args.event}
         saveTimeGrid(timefile,timegrid,mmigrid.geodict,metadict)
         timestack[:,:,i] = timegrid
-        alertgrid = mmigrid
+        alertgrid = popgrid
         alertgrid.griddata = timegrid
         makeMap(alertgrid,'alertmap_%i' % i,outfolder,popfile,globaldict['popcolormap'],sdict,citylist,[lat],[lon])
         
