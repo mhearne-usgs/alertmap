@@ -201,7 +201,7 @@ def getSlowestStation(lat,lon,depth,calc):
         slon = lons[i]
         distance = locations2degrees(lat,lon,slat,slon)
         distances.append(distance)
-        ptime,stime = calc.getTravelTimes2(distance,depth)
+        ptime,stime = calc.getTravelTimes(distance,depth)
         times.append(ptime)
     times = np.array(times)
     distances = np.array(distances)
@@ -519,7 +519,7 @@ def main(args):
                     timegrid[row,col] = np.nan
                     continue
                 distance = locations2degrees(lat,lon,mmilat,mmilon)
-                tmp,stime = calc.getTravelTimes2(distance,depth)
+                tmp,stime = calc.getTravelTimes(distance,depth)
                 timegrid[row,col] = stime - ptime
 
         #debugging
