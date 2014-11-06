@@ -534,7 +534,7 @@ def main(args):
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            exposure = getTimeExposure(timegrid,mmigrid,popfile)
+            exposure = getTimeExposure(timegrid,mmigrid,popfile,mmithresh)
         print 'Population Warning Times for epicenter %.4f,%.4f' % (lat,lon)
         printExposure(exposure)
         expofile = os.path.join(outfolder,'expo%03i.json' % (i+1))
